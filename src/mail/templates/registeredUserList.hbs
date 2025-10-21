@@ -1,0 +1,39 @@
+<style>
+#users {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#users td, #users th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#users tr:nth-child(even){background-color: #f2f2f2;}
+
+#users tr:hover {background-color: #ddd;}
+
+#users th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #01BD72;
+  color: white;
+}
+</style>
+
+<p><b>Livestock Guru - </b> Daily user registration list:</p>
+<table id="users">
+    <tr>
+        <th>Email</th>
+        <th>Phone</th>
+    </tr>
+    {{#each users}}
+    <tr>
+        <td>{{email}}</td>
+        <td>{{mobile}}</td>
+    </tr>
+    {{/each}}
+</table>
+

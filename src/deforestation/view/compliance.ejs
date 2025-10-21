@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta
+      name="author"
+      content="Complicance Report"
+    />
+    <meta name="generator" content="Hugo 0.84.0" />
+    <title>Compliance Report</title>
+
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/5.0/examples/navbar-static/"
+    />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        html {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        .dp_btn {
+        border: 1px solid #ffb443;
+        border-radius: 70px;
+        color: #ffb443;
+        padding: 6px 20px;
+        width: fit-content;
+        height: 34px;
+        justify-content: center;
+        align-items: center;
+      }
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+
+      .left-column {
+        flex: 1;
+        padding: 20px;
+        box-sizing: border-box;
+        border-right: 1px solid #d3d3d3;
+        border-left: 1px solid #d3d3d3;
+        border-bottom: 1px solid #d3d3d3;
+        border-radius:0px 0px 10px 10px;
+        margin-bottom: 10px;
+      }
+
+      .icon {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #3498db; /* Adjust the background color of the circle */
+        border-radius: 50%; /* Creates a circular shape */
+        text-align: center;
+        line-height: 50px;
+        color: #fff; /* Adjust the color of the icon */
+        font-size: 24px; /* Adjust the size of the icon */
+        margin-right: 10px; /* Adjust the spacing between the icon and text */
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        margin-bottom: 10px;
+      }
+
+      .very_high {
+        background: #8B0000;
+      }
+
+      .high {
+        background: #B6000C;
+      }
+
+      .medium {
+        background: #FFA520 ;
+      }
+
+      .low {
+        background: #60dbdb ;
+      }
+
+      .very_low {
+        background: #208080 ;
+      }
+
+      .zero {
+        background: #F1F4F7;
+      }
+    </style>
+
+    <!-- Custom styles for this template -->
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md mb-4" style="background: #1f5d51">
+      <div
+        class="container-fluid d-flex align-items-center justify-content-center"
+      >
+        <div class="nav-image">
+          <img src="data:image/png;base64, <%= logo %>" alt="Red dot" />
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div class="row"  style="margin-bottom: 650px;">
+        <div class="col-md-12">
+          <div
+            class="main-heading mb-2"
+            style="
+              font-size: 16px;
+              font-weight: 700;
+              line-height: 28px;
+              letter-spacing: 0em;
+              text-align: left;
+              color: #0ebf67;
+            "
+          >
+            <%= t('message.eudr_compliance_certificate', {lang}) %>
+          </div>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= reportDetails.farm?.farmName ?? reportDetails.farmName ?? 'N/A' %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= reportDetails.locationName ?? 'N/A' %>
+          </p>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.assessment_no', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= reportDetails.reportGuid %>
+          </p>
+          <img src="data:image/png;base64, <%= mapBase64Img %>" alt="Red dot" style="max-width: 730px; max-height: 500px; margin-bottom: 30px; border-radius: 10px;"/>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.certificate_issue_date', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= moment(reportDetails.updatedAt).format('D MMMM YYYY') %>
+          </p>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.time_period', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+             31 December 2020 - <%= moment(reportDetails.referenceEndDate).format('D MMMM YYYY') %>
+          </p>
+          <% if (reportDetails.farmerUUID) { %>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+          <%= t('message.farmer_id', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%;">
+             <%= reportDetails.farmerUUID ? reportDetails.farmerUUID : 'N/A' %>
+          </p>
+          <% } %>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.farmer_name', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= reportDetails.farm?.farmOwner ?? reportDetails.farmerName ?? 'N/A' %>
+          </p>
+          <% if (reportDetails.farmerRegistrationId) { %>
+            <h5
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 18px;
+                letter-spacing: 0.9%;
+              "
+            >
+            <%= t('message.farmer_registration_id', {lang}) %>
+            </h5>
+            <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%;">
+              <%= reportDetails.farmerRegistrationId %>
+            </p>
+          <% } %>
+          <% if (reportDetails.farmUUID) { %>
+            <h5
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 18px;
+                letter-spacing: 0.9%;
+              "
+            >
+            <%= t('message.farm_id', {lang}) %>
+            </h5>
+            <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%;">
+              <%= reportDetails.farmUUID %> 
+            </p>
+          <% } %>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+          <%= t('message.farm_name', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%;">
+            <%= reportDetails.farmName %>
+          </p>
+          <% if (reportDetails.farmRegistrationId) { %>
+            <h5
+              style="
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 18px;
+                letter-spacing: 0.9%;
+              "
+            >
+            <%= t('message.farm_registration_id', {lang}) %>
+            </h5>
+            <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%;">
+              <%= reportDetails.farmRegistrationId %>
+            </p>
+          <% } %>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.farm_address', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= reportDetails.farm?.address ?? reportDetails.locationName ?? "N/A" %>
+          </p>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.farm_latitude', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= reportDetails.farm?.lat ?? reportDetails.centerLatitude ?? "N/A"%>
+          </p>
+          <h5
+            style="
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 18px;
+              letter-spacing: 0.9%;
+            "
+          >
+            <%= t('message.farm_longitude', {lang}) %>
+          </h5>
+          <p style="font-size: 14px; line-height: 24px; letter-spacing: 0.9%">
+            <%= reportDetails.farm?.log ?? reportDetails.centerLongitude ?? "N/A" %>
+          </p>
+        </div>
+      </div>
+        <hr>
+        <% for(const metric of reportDetails.metrics) {%>
+          <div class="d-flex p-0">
+            <div class="left-column">
+              <!-- Left Content Goes Here -->
+              <h2 style="font-size: 14px; display: flex;">
+                <span class="icon" style="background-color: <%= metric.colorCode %>;"></span>
+                <%= t('message.' + snakeCase(metric.label.replace('/', ' Or ')) + '_deforestation_probability', {lang}) %>
+                <i style="margin-left: 5px;" class="fas fa-info-circle"></i>
+              </h2>
+                <ul style="margin-left: 20px;font-size: 16px;">
+                  <li><%= parseFloat(metric.area.toFixed(3)) %> <%=userUnit.abbvr.toUpperCase()%> (<%= t('message.geofence_area', {lang}) %>)</li>
+                  <li>
+                    <%= parseFloat(metric.percent.toFixed(2)) %>% (<%= t('message.percentage_of_geofence_area', {lang}) %>)
+                  </li>
+                </ul>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="d-flex p-0">
+          <div class="left-column">
+            <!-- Left Content Goes Here -->
+            <h2 style="font-size: 14px">
+              <%= t('message.total_geofence_area', {lang}) %>
+              <i style="margin-left: 5px;" class="fas fa-info-circle"></i>
+            </h2>
+            <ul style="margin-left: 20px;font-size: 16px;">
+              <li><%= parseFloat(reportDetails.totalArea.toFixed(3)) %> <%=userUnit.abbvr.toUpperCase()%></li>
+              <li>100%</li>
+            </ul>
+          </div>
+        </div>
+        <div class="py-4 px-2">
+          <h3 class="mb-3" style="font-weight: bold; font-size: 18px">
+            <%= t('message.overall_deforestation_prob', {lang}) %>
+          </h3>
+    
+          <div class="dp_btn" style="border-color: currentColor; color: <%= (reportDetails.originalOverallProb || reportDetails.overallProb || '').toLowerCase().includes('zero') ? '#000000' : reportDetails.overallProbColorCode %>;">
+            <%= (typeof (reportDetails.originalOverallProb || reportDetails.overallProb) === 'string' && (reportDetails.originalOverallProb || reportDetails.overallProb).trim() !== '') ?
+            t(`message.${(reportDetails.originalOverallProb || reportDetails.overallProb).split(/[\/\s]/).join("_").toLowerCase()}`, {lang}) : 'N/A' %>
+          </div>
+        </div> 
+      </div>
+      <hr>
+    </main>
+    <footer class=" position-relative">
+      <div class="position-absolute bottom-0 left-0">
+        <img src="data:image/png;base64, <%= backgroundFrame %>" alt="" style="height: auto; width: 212px;"/>  
+      </div>
+      <div class="container position-relative " style="z-index: 9; ">
+        <div class="px-5 pb-0 py-0 d-flex flex-column align-items-center">
+          <p class="text-center"><%= t('message.blockchain_validation', {lang}) %></p>
+          <div>
+            <p class="text-center"><%= t('message.blockchain_cert_validation', {lang}) %></p>
+            <div class="badge bg-success px-3 py-1 mt-0" style="word-break: break-all; white-space: normal;">
+              <%= reportDetails.transactionHash%>
+            </div>
+            <p class="text-center mt-2" style="font-size: 12px;"><%= t('message.copy_link', {lang}) %></p>
+          </div>
+         <div class = 'align-items-center'>            
+          <img src="<%= reportDetails.qrCode %>" alt="" class="w-100 h-auto "/>  
+        </div>
+        
+        </div>
+
+      
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+   
+  </body>
+</html>

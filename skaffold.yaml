@@ -1,0 +1,91 @@
+apiVersion: skaffold/v2beta20
+kind: Config
+metadata:
+  name: dddb-farmer-dev
+profiles:
+
+#dev
+- name: dddb-farmer-dev
+  build:
+    artifacts:
+    - image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/dddb-farmer-dev
+  deploy:
+    helm:
+      releases:
+      - name: dddb-farmer-dev
+        namespace: dddb-dev
+        chartPath: ./helm-chart
+        valuesFiles: 
+          - ./helm-chart/dddb-dev.yaml
+        artifactOverrides:
+          deployment.image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/dddb-farmer-dev
+        imageStrategy:
+          fqn: {}
+
+#prod
+- name: dddb-farmer-prod
+  build:
+    artifacts:
+    - image: 495454422438.dkr.ecr.us-east-1.amazonaws.com/dddb-farmer-prod
+  deploy:
+    helm:
+      releases:
+      - name: dddb-farmer-prod
+        namespace: dddb-prod
+        chartPath: ./helm-chart
+        valuesFiles: 
+          - ./helm-chart/dddb-prod.yaml
+        artifactOverrides:
+          deployment.image: 495454422438.dkr.ecr.us-east-1.amazonaws.com/dddb-farmer-prod
+        imageStrategy:
+          fqn: {}
+#pre-prod
+- name: cf-sass-deforestation-pre-prod
+  build:
+    artifacts:
+    - image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/cf-sass-deforestation-pre-prod
+  deploy:
+    helm:
+      releases:
+      - name: cf-sass-deforestation-pre-prod
+        namespace: cf-deforestaion-pre-prod
+        chartPath: ./helm-chart
+        valuesFiles: 
+          - ./helm-chart/values-pre-prod.yaml
+        artifactOverrides:
+          deployment.image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/cf-sass-deforestation-pre-prod
+        imageStrategy:
+          fqn: {}
+- name: livestock-sass-farmer-dev
+  build:
+    artifacts:
+    - image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/cf-sass-deforestation-dev
+  deploy:
+    helm:
+      releases:
+      - name: livestock-sass-farmer-dev
+        namespace: livestock-dev
+        chartPath: ./helm-chart
+        valuesFiles: 
+          - ./helm-chart/values-dev.yaml
+        artifactOverrides:
+          deployment.image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/cf-sass-deforestation-dev
+        imageStrategy:
+          fqn: {}
+#Staging
+- name: cf-sass-deforestation-staging
+  build:
+    artifacts:
+    - image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/cf-sass-deforestation-staging
+  deploy:
+    helm:
+      releases:
+      - name: cf-sass-deforestation-staging
+        namespace: cf-deforestaion-staging
+        chartPath: ./helm-chart
+        valuesFiles: 
+          - ./helm-chart/values-staging.yaml
+        artifactOverrides:
+          deployment.image: 495454422438.dkr.ecr.us-west-1.amazonaws.com/cf-sass-deforestation-staging
+        imageStrategy:
+          fqn: {}          

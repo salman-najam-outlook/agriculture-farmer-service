@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="Complicance Report" />
+  <meta name="generator" content="Hugo 0.84.0" />
+  <title>Exempt Product Report</title>
+  <link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    #report thead tr {
+      vertical-align: middle;
+    }
+
+    html {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+    }
+
+    .nav-image {
+      width: 300px;
+      height: 49.498px;
+    }
+
+    .nav-image img {
+      height: auto;
+      width: 80%;
+    }
+
+    .top_title {
+      width: 416px;
+      height: 70px;
+      background-color: #117443;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .location_section {
+      background: rgba(0, 0, 0, 0.03);
+      padding: 30px 20px 30px 20px;
+    }
+
+    .border-right {
+      height: 100px;
+      width: 1px;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .map_image {
+      padding: 20px;
+    }
+
+    .map_image img {
+      width: 100%;
+    }
+
+    thead {
+      padding: 20px;
+      border-style: hidden;
+    }
+
+    .borderless td,
+    .borderless th {
+      border: none;
+    }
+
+    table td {
+      border: 0 !important;
+    }
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+
+    .dp_btn {
+      border: 1px solid #ffb443;
+      border-radius: 70px;
+      color: #ffb443;
+      padding: 6px 20px;
+      width: fit-content;
+      height: 34px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer .blockchain_assessment {
+      font-size: 20px;
+    }
+
+    .footer .blockchain_validation {
+      font-size: 14px;
+    }
+
+    .footer .hash_div {
+      border-radius: 8px;
+      color: white;
+      width: fit-content;
+      padding: 0 20px;
+      height: 60px;
+      flex-shrink: 0;
+      border-radius: 5.833px;
+      background: #018a54;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      font-size: 12px;
+    }
+
+    .footer .copy_link {
+      font-size: 10px;
+    }
+
+    @media (max-width: 767px) {
+      .footer .blockchain_assessment {
+        font-size: 20px;
+      }
+
+      .footer .blockchain_validation {
+        font-size: 16px;
+      }
+
+      .footer .hash_div {
+        width: 100%;
+        font-size: 12px;
+      }
+
+      .footer .copy_link {
+        font-size: 12px;
+      }
+    }
+
+    .d-flex {
+      display: flex;
+    }
+
+    mr-5 {
+      margin-right: 5px;
+    }
+
+    mt-10 {
+      margin-top: 10
+    }
+
+    mb-10 {
+      margin-bottom: 10;
+    }
+
+    .font-weight-bold {
+      font-weight: bold;
+    }
+
+    .mb-20 {
+      margin-bottom: 20px;
+    }
+
+    body {
+      margin: auto;
+      width: 794px;
+    }
+
+    .mb-50 {
+      margin-bottom: 50px;
+    }
+
+    .space-between {
+      justify-content: space-between;
+    }
+
+    .flex-count {
+      flex: 1;
+    }
+
+    .flex-basic {
+      flex-basis: 33%;
+    }
+
+    label {
+      margin-bottom: 10px;
+    }
+
+    .bgr {
+      background-color: #ddd;
+    }
+
+    .top-section,
+    .middle-section,
+    .third-section,
+    .production-place {
+      background-color: #fff;
+    }
+
+    .justify-space-between {
+      justify-content: space-between;
+    }
+
+    .p-20 {
+      padding: 20px;
+    }
+
+    table thead tr {
+      background-color: #FFB443;
+      text-align: start;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .font-sz {
+      font-size: 14px;
+    }
+
+    .status-box {
+      padding: 4px 20px;
+      border-radius: 16px;
+    }
+
+    .status-box-pending {
+      background: #E8E8E8;
+      border: 1px solid #000000;
+    }
+
+    .status-box-upload-to-eu {
+      background: #D0E6FE;
+      border: 1px solid #002287
+    }
+
+    .status-box-under-review {
+      border: 1px solid #B56D01;
+      background: #B56D01;
+    }
+
+    .status-box-non-complaint {
+      background: #FDEBEB;
+      border: 1px solid #DA3D3D
+    }
+
+    .status-box-mitigation-required {
+      background: #FFF7EC;
+      border: 1px solid #FFA826
+    }
+
+    .status-box-complaint {
+      background: #C1FFE7;
+      border: 1px solid #489E16
+    }
+
+    .production-status {
+      padding: 4px 15px;
+      border-radius: 14px;
+    }
+
+    .tick-sign {
+      height: 20px;
+      width: 20px;
+      border-radius: 3px;
+    }
+
+    .production-status-approve {
+      background: #E2FFF4;
+      border: 1px solid #00BD73
+    }
+
+    .production-status-reject {
+      background: #FFCEB3;
+      border: 1px solid #F06B20
+    }
+
+    .production-status-high {
+      background: #FF8F8F;
+      border: 1px solid #8B0000;
+    }
+
+    .production-status-low {
+      background: #FFFCEC;
+      border: 1px solid #F49238
+    }
+
+    .production-status-medium {
+      background: #FFCEB3;
+      border: 1px solid #F06B20
+    }
+
+    .mb-400 {
+      margin-bottom: 350px;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="bgr">
+    <nav class="navbar navbar-expand-md mb-50">
+      <div class="container-fluid d-flex align-items-center justify-space-between">
+        <div class="nav-image">
+          <img src="https://dimitra.io/wp-content/themes/dimitra/assets/imgs/dimitralogo2023.svg" alt="dimitra logo" />
+        </div>
+
+        <div class="top_title"> <%= t('message.eudrExemptProduct.eudrExemptProduct', {lang}) %> </div>
+      </div>
+    </nav>
+    <main class="container-fluid mb-20 p-20  font-sz">
+      <div class="forth-section p-20 mb-50 production-place">
+        <h4 class="mb-20"> <%= t('message.eudrExemptProduct.listOfEudrExemptProduct', {lang}) %> </h4>
+        <div>
+          <table id="report" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+              <tr>
+                <th><%= t('message.eudrExemptProduct.internalReferenceNo', {lang}) %></th>
+                <th><%= t('message.eudrExemptProduct.supplier', {lang}) %></th>
+                <th><%= t('message.eudrExemptProduct.containerId', {lang}) %></th>
+                <th><%= t('message.eudrExemptProduct.product', {lang}) %></th>
+                <th><%= t('message.eudrExemptProduct.quantity', {lang}) %></th>
+                <th><%= t('message.eudrExemptProduct.dateAdded', {lang}) %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (report.length) { %>
+                <% for (const row of report) { %>
+                  <tr>
+                    <td>
+                      <%= row.internalReferenceNumber %>
+                    </td>
+                    <td>
+                      <%= row.supplier?.firstName %>
+                        <%= row.supplier?.lastName %>
+                    </td>
+                    <td>
+                      <%= row.containerIds.length> 0 ? row.containerIds[0].containerId : '' %>
+                    </td>
+                    <td>
+                      <%= row.productDetail?.name %>
+                    </td>
+                    <td>
+                      <%= row.productNetMass %>
+                    </td>
+                    <td>
+                      <%= new Date(row.productDate).toLocaleDateString('en-CA').replace(/-/g, '/' ) %>
+                    </td>
+                  </tr>
+                  <% } %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="6"><%= t('message.eudrExemptProduct.noRecordFound', {lang}) %></td>
+                      </tr>
+                      <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </section>
+</body>
+
+</html>

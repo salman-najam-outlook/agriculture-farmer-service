@@ -1,0 +1,33 @@
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Roles } from '../roles';
+
+@Injectable()
+export class ModulesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
+    // console.log('ModulesGuard Guard called');
+    // const modules =
+    //   this.reflector.getAllAndMerge<string[]>('modules', [
+    //     context.getClass(),
+    //     context.getHandler(),
+    //   ]) || [];
+    // if (modules && modules.length === 0) {
+    //   return true;
+    // }
+    // //const request = context.switchToHttp().getRequest();
+    // //const user = request.user;
+
+    // //permissions
+    // //const userPermissions = request.permissions;
+    // const userPermissions = ['account'];
+
+    // const hasModule = () =>
+    //   userPermissions.some(
+    //     (module: string) =>
+    //       !!modules.find((userModule: string) => userModule === module),
+    //   );
+    return true
+  }
+}

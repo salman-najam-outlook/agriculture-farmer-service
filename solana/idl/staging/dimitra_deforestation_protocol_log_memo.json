@@ -1,0 +1,73 @@
+{
+  "address": "E22mM2hSBAb786m9c9mfdgCopdHVaXqeGF8fuNC7rgFJ",
+  "metadata": {
+    "name": "dimitra_deforestation_protocol_log_memo",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "log_memo",
+      "docs": [
+        "Logs a memo message to the blockchain transaction history.",
+        "",
+        "This instruction function takes a string parameter and emits it as a",
+        "transaction log using the Solana built-in `msg!` function.",
+        "",
+        "Only the authorized signer can successfully call this function.",
+        "If any other account attempts to call it, an error will be returned.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context of the instruction.",
+        "* `memo` - The string message to be logged in the transaction.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the signer is not the authorized account."
+      ],
+      "discriminator": [
+        131,
+        238,
+        76,
+        16,
+        161,
+        45,
+        222,
+        191
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "docs": [
+            "The account that pays for the transaction.",
+            "Must be the authorized signer for the operation to succeed."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program, used to identify system instructions"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "memo",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "UnauthorizedSigner",
+      "msg": "Unauthorized signer. Only the authorized account can log memos."
+    }
+  ]
+}

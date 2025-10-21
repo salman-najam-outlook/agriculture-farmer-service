@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="Complicance Report" />
+  <meta name="generator" content="Hugo 0.84.0" />
+  <title>Deforestation Dispute</title>
+  <link href="https://getbootstrap.com/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script>
+        function serverToGoogleCoordinates({ latitude, longitude }) {
+      return {
+        lat: latitude,
+        lng: longitude
+      };
+    }
+
+    async function initializeMap() {
+
+      const centerCoordinates = {
+            lat: Number.parseFloat('<%- JSON.stringify(report.latitude) %>'),
+            lng: Number.parseFloat('<%- JSON.stringify(report.longitude) %>')
+        };
+      const map = new google.maps.Map(document.getElementById('map'), {
+        mapTypeId: 'satellite',
+        zoom: 18,
+        disableDefaultUI: true,
+        center: centerCoordinates,
+      });
+    }
+
+    window.initMap = initializeMap;
+  </script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+    }
+
+    .nav-image {
+      width: 300px;
+      height: 49.498px;
+    }
+
+    .nav-image img {
+      height: auto;
+      width: 80%;
+    }
+
+    .top_title {
+      width: 416px;
+      height: 70px;
+      background-color: #117443;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .location_section {
+      background: rgba(0, 0, 0, 0.03);
+      padding: 30px 20px 30px 20px;
+    }
+
+    .border-right {
+      height: 100px;
+      width: 1px;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .map_image {
+      padding: 20px;
+    }
+
+    .map_image img {
+      width: 100%;
+    }
+
+    thead {
+      padding: 20px;
+      border-style: hidden;
+    }
+
+    .borderless td,
+    .borderless th {
+      border: none;
+    }
+
+    table td {
+      border: 0 !important;
+    }
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+
+    .dp_btn {
+      border: 1px solid #ffb443;
+      border-radius: 70px;
+      color: #ffb443;
+      padding: 6px 20px;
+      width: fit-content;
+      height: 34px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .footer .blockchain_assessment {
+      font-size: 20px;
+    }
+
+    .footer .blockchain_validation {
+      font-size: 14px;
+    }
+
+    .footer .hash_div {
+      border-radius: 8px;
+      color: white;
+      width: fit-content;
+      padding: 0 20px;
+      height: 60px;
+      flex-shrink: 0;
+      border-radius: 5.833px;
+      background: #018a54;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      font-size: 12px;
+    }
+
+    .footer .copy_link {
+      font-size: 10px;
+    }
+
+    @media (max-width: 767px) {
+      .footer .blockchain_assessment {
+        font-size: 20px;
+      }
+
+      .footer .blockchain_validation {
+        font-size: 16px;
+      }
+
+      .footer .hash_div {
+        width: 100%;
+        font-size: 12px;
+      }
+
+      .footer .copy_link {
+        font-size: 12px;
+      }
+    }
+
+    .d-flex {
+      display: flex;
+    }
+
+    mr-5 {
+      margin-right: 5px;
+    }
+
+    mt-10 {
+      margin-top: 10
+    }
+
+    mb-10 {
+      margin-bottom: 10;
+    }
+
+    .font-weight-bold {
+      font-weight: bold;
+    }
+
+    .mb-20 {
+      margin-bottom: 20px;
+    }
+
+    body {
+      margin: auto;
+      width: 794px;
+    }
+
+    .mb-50 {
+      margin-bottom: 50px;
+    }
+
+    .space-between {
+      justify-content: space-between;
+    }
+
+    .flex-count {
+      flex: 1;
+    }
+
+    .flex-basic {
+      flex-basis: 33%;
+    }
+
+    label {
+      margin-bottom: 10px;
+    }
+
+    .bgr {
+      background-color: #ddd;
+    }
+
+    .top-section,
+    .middle-section,
+    .third-section,
+    .production-place {
+      background-color: #fff;
+    }
+
+    .justify-space-between {
+      justify-content: space-between;
+    }
+
+    .p-20 {
+      padding: 20px;
+    }
+
+    table thead tr {
+      background-color: #FFB443;
+      text-align: start;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .font-sz {
+      font-size: 14px;
+    }
+
+    .status-box {
+      padding: 4px 20px;
+      border-radius: 16px;
+    }
+
+    .status-box-pending {
+      background: #E8E8E8;
+      border: 1px solid #000000;
+    }
+
+    .status-box-upload-to-eu {
+      background: #D0E6FE;
+      border: 1px solid #002287
+    }
+
+    .status-box-under-review {
+      border: 1px solid #B56D01;
+      background: #B56D01;
+    }
+
+    .status-box-non-complaint {
+      background: #FDEBEB;
+      border: 1px solid #DA3D3D
+    }
+
+    .status-box-mitigation-required {
+      background: #FFF7EC;
+      border: 1px solid #FFA826
+    }
+
+    .status-box-complaint {
+      background: #C1FFE7;
+      border: 1px solid #489E16
+    }
+
+    .production-status {
+      padding: 4px 15px;
+      border-radius: 14px;
+    }
+
+    .tick-sign {
+      height: 20px;
+      width: 20px;
+      border-radius: 3px;
+    }
+
+    .production-status-approve {
+      background: #E2FFF4;
+      border: 1px solid #00BD73
+    }
+
+    .production-status-reject {
+      background: #FFCEB3;
+      border: 1px solid #F06B20
+    }
+
+    .production-status-high {
+      background: #FF8F8F;
+      border: 1px solid #8B0000;
+    }
+
+    .production-status-low {
+      background: #FFFCEC;
+      border: 1px solid #F49238
+    }
+
+    .production-status-medium {
+      background: #FFCEB3;
+      border: 1px solid #F06B20
+    }
+
+    .mb-400 {
+      margin-bottom: 350px;
+    }
+
+    .body {
+      font-size: 14px;
+    }
+
+    table,
+    tr,
+    td {
+      page-break-inside: avoid;
+    }
+
+    .paddedx {
+      padding: 0 25px;
+    }
+
+    .pdf-header{
+      width: 100%;
+      padding: 30px;
+      font-size: 18px;
+      font-weight: bolder;
+      border-radius: 14px 0 0 14px;
+    }
+
+    .pdf-header-title {
+      width: 300px;
+      font-size: 18px;
+      border-radius: 14px 0 0 14px;
+      text-align: end;
+      letter-spacing: 1px;
+    }
+
+    .pdf-header-header {
+      text-transform: uppercase;
+      font-size: 18px;
+      text-align: end;
+      letter-spacing: 1px;
+    }
+
+    .pdf-header-sub-header {
+      font-weight: normal;
+      font-size: 18px;
+      text-align: end;
+      letter-spacing: 1px;
+    }
+
+    .pdf-subtitle {
+      padding: 2%;
+      margin-top: 18px;
+      width: 100%;
+      height: auto;
+      background-color: #f7f7f7;
+    }
+
+    .pdf-sub-header-title {
+      font-family: Poppins;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+      letter-spacing: 0.009em;
+    }
+
+    .circle-container {
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+    }
+
+    .circle {
+      background: #0EBF67;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      color: white;
+    }
+
+    .pdf-sub-header-title-value {
+      color: #3E3E3E;
+      font-family: Poppins;
+      font-weight: 600;
+      size: 14px;
+    }
+
+    .table-head {
+      background: #117443;
+      color: #ffffff;
+      display: table-row-group;
+
+    }
+
+    .deforestation-header {
+      background-color: #FFB443;
+    }
+
+    .square-box {
+      width: 25px;
+      height: 25px;
+      border: 1px solid #e2e2e2;
+      border-radius: 5px;
+    }
+
+    .overall-deforestation {
+      width: 100%;
+      color: #FFB443;
+      border: 2px solid #FFB443;
+      border-radius: 20px;
+      background-color: rgb(255, 180, 67, 0.1);
+      text-align: center;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .center-div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chip {
+      padding: 8px 40px;
+      border: 1px solid;
+      border-radius: 16px;
+    }
+    .hash {
+      background-color: #117443;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px 10px;
+    }
+
+    .response-table-header {
+      /* padding: 2%; */
+      margin-top: 18px; 
+      width: 100%;
+      height: auto;
+      background-color: #f7f7f7;
+    }
+
+    html {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+    }
+    .color-box{
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+    .color-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: black;
+      background: #0EBF671A;;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .data-section-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.attr {
+  width: 330px; /* Adjust the width as per your requirement */
+}
+
+.attr label, .attr p {
+  display: block;
+  white-space: nowrap; /* Prevent text from wrapping */
+  text-overflow: ellipsis;
+  overflow: hidden;    /* Hide overflowed content */
+}
+
+.font-weight-bold {
+  font-weight: bold;
+}
+  </style>
+</head>
+
+<body>
+  <section class="bgr">
+    <nav class="navbar navbar-expand-md mb-50">
+      <div class="container-fluid d-flex align-items-center justify-space-between">
+        <div class="nav-image">
+          <img src="https://dimitra.io/wp-content/themes/dimitra/assets/imgs/dimitralogo2023.svg" alt="dimitra logo" />
+        </div>
+
+        <div class="top_title">Deforestation Dispute </div>
+      </div>
+    </nav>
+    <main class="container-fluid mb-20 p-20  font-sz">
+      <div class="p-20 mb-50">
+        <div class="data-section-row d-flex mb-20 justify-content-between">
+          <div class="attr">
+            <label> Dispute ID </label>
+            <p class="font-weight-bold">
+              <%= report.disputeId || 'NA' %>
+            </p>
+          </div>
+          <div class="attr">
+            <label> Assessment </label>
+            <p class="font-weight-bold">
+              <%= report.assessmentId || 'NA' %>
+            </p>
+          </div>
+          <div class="attr">
+            <label> Dispute Status </label>
+            <p class="font-weight-bold">
+              <%= report.disputeStatus || 'NA' %>
+            </p>
+          </div>
+          </div>
+        <div class="data-section-row d-flex mb-20 justify-content-between">
+          <div class="attr">
+            <label> Dimitra Farm ID </label>
+            <p class="font-weight-bold">
+              <%= report.dimitraFarmId || 'NA' %>
+            </p>
+          </div>
+          <div class="attr">
+            <label> Farm Name </label>
+            <p class="font-weight-bold">
+              <%= report.farmName || 'NA' %>
+            </p>
+          </div>
+          <div class="attr">
+            <label> Farm Address </label>
+            <p class="font-weight-bold">
+              <%= report.farmAddress || 'NA' %>
+            </p>
+          </div>
+          </div>
+        <div class="data-section-row d-flex mb-20 justify-content-between">
+          <div class="attr">
+            <label> Farm Latitude </label>
+            <p class="font-weight-bold">
+              <%= report.latitude || 'NA' %>
+            </p>
+          </div>
+          <div class="attr">
+            <label> Farm Longitude </label>
+            <p class="font-weight-bold">
+              <%= report.longitude || 'NA' %>
+            </p>
+          </div>
+          <div class="attr">
+            <label> Farm Area </label>
+            <p class="font-weight-bold">
+              <%= report.farmArea || 'NA' %>
+            </p>
+          </div>
+          </div>
+          </div>
+    </div>
+
+      <div class="map-container">
+        <article id="map" class="google-map" style="width:100%; height:550px; z-index: 0;"></article>
+      </div>
+    <hr/>
+      <% if (disputes.length){ %>
+        <div class="px-4">
+          <div class="row">
+            <div class="col-auto pb-0">
+              <h4 class="py-5">Resolution history</h4>
+            </div>
+            <div class="col"></div>
+          </div>
+        </div>
+        <% for (const [index, dp] of disputes.entries()) { %>
+          <div class="px-4 pt-2 mx-4 mb-4" style="background: #F3F3F380;">
+            <div class="p-20 mb-50">
+              <div class="data-section-row d-flex mb-20 justify-content-between">
+                <div class="attr">
+                  <label> User Name </label>
+                  <p class="font-weight-bold">
+                    <%= dp.creating_user.firstName || 'NA' %>
+                    <%= dp.creating_user.lastName %>
+                  </p>
+                </div>
+                <div class="attr">
+                  <label> Dispute Area </label>
+                  <p class="font-weight-bold">
+                    <%= dp.geofence.geofenceArea || 'NA' %>
+                  </p>
+                </div>
+                <div class="attr">
+                  <label> Area Type </label>
+                  <p class="font-weight-bold">
+                    <%= dp.geofence.farmType || 'NA' %>
+                  </p>
+                </div>
+     
+              </div>
+              <div class="data-section-row d-flex mb-20 justify-content-between">
+                <div class="attr">
+                  <label> Latitude </label>
+                  <p class="font-weight-bold">
+                    <%= dp.geofence.geofenceCenterLat || 'NA' %>
+                  </p>
+                </div>
+                <div class="attr">
+                  <label> Longitude </label>
+                  <p class="font-weight-bold">
+                    <%= dp.geofence.geofenceCenterLog || 'NA' %>
+                  </p>
+                </div>
+              </div>
+
+      
+            </div>
+            <div class="row">
+              <div class="col-1 circle-container">
+                <span class="circle"><%= index + 1 %></span>
+              </div>
+              <div class="col-11">
+                <h4><%= dp.title %></h4>
+                <p>
+                  <%= dp.description %>
+                </p>
+                <a href="<%= dp.s3Location %>" class="button"><%= dp.s3Key.split('/')[1] %></a>
+              </div>
+            </div>
+
+            <% if (dp.comments.length){ %>
+              <% for (const [i, c] of dp.comments.entries()) { %>
+
+                <div class="row">
+                  <div class="col-1 circle-container">
+                    <span class="circle"><%= index + '.'+ i + 1 %></span>
+                  </div>
+                  <div class="col-11">
+                    <p>
+                      <%= c.comment %>
+                    </p>
+                    <a href="<%= c.s3Location %>" class="button"><%= c.s3Key.split('/')[1] %></a>
+                  </div>
+                </div>
+                <% } %>
+                <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"></script>
+  </section>
+</body>
+<script
+  src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBxEppGyQ3YatmT9C8RJjXAh9HsVtpKLh4&libraries=places&loading=async&callback=initMap"
+  async defer></script>
+</html>

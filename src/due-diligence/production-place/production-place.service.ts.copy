@@ -1,0 +1,1636 @@
+import {
+    HttpException,
+    HttpStatus,
+    Inject,
+    Injectable,
+    NotFoundException
+} from "@nestjs/common";
+import {InjectModel} from "@nestjs/sequelize";
+import {Sequelize} from "sequelize-typescript";
+import {Farm} from "src/farms/entities/farm.entity";
+import {DueDiligenceProductionPlace} from "./entities/production-place.entity";
+import {
+    CreateProductionPlacesInput,
+    DueDiligenceProductionPlaceExtended,
+    FarmType,
+    ProductionPlaceFilterInput,
+    RemoveFarmArgs,
+    RestoreFarmsArgs,
+    UpdateProductionPlacesInput
+} from "./dto/create-production-place.input";
+import {User} from "src/users/entities/user.entity";
+import {FarmCoordinates} from "src/farms/entities/farmCoordinates.entity";
+import {FarmLocation} from "src/farms/entities/farmLocation.entity";
+import {Geofence} from "src/geofence/entities/geofence.entity";
+import {GeofenceCoordinates} from "src/geofence/entities/geofenceCoordinates.entity";
+import {ApiCallHelper} from "src/helpers/api-call.helper";
+import {RequestMethod} from "src/helpers/helper.interfaces";
+import {S3Service} from "src/upload/upload.service";
+import {RiskMitigationFiles} from "./entities/risk-mitigation-files.entity";
+import {ProductionPlaceDisputes} from "./entities/production-place-dispute.entity";
+import {ProductionPlaceDisputeComments} from "./entities/dispute-comment.entity";
+import {HighRiskFarmMitigationInput, UpdateRiskMitigationInput} from "./dto/risk-mitigation-file.input";
+import {Op} from "sequelize";
+import {DEFAULT_AREA_IN_HECTOR, HECTOR_TO_ACRE_FACTOR, URL} from "src/config/constant";
+import * as path from "path";
+import * as fs from "fs";
+import {parseStringPromise} from "xml2js";
+import {DisputeCommentInput, ProductionPlaceDisputeFilterInput, ProductionPlaceDisputeInput} from "./dto/production-place-dispute.input";
+import {DiligenceReport} from "src/diligence-report/entities/diligence-report.entity";
+import {FarmUploadHistory} from "src/farms/entities/farm-upload-history.entity";
+@Injectable()
+export class ProductionPlaceService {
+    constructor(@InjectModel(User)private userModel : typeof User, @InjectModel(Farm)private farmModel : typeof Farm, @InjectModel(FarmUploadHistory)private farmUploadHistoryModel : typeof FarmUploadHistory, @InjectModel(FarmCoordinates)private farmCoordinateModel : typeof FarmCoordinates, @InjectModel(FarmLocation)private farmLocationModel : typeof FarmLocation, @InjectModel(Geofence)private geofenceModel : typeof Geofence, @InjectModel(GeofenceCoordinates)private geofenceCoordinateModel : typeof GeofenceCoordinates, @InjectModel(DueDiligenceProductionPlace)private productionPlaceModel : typeof DueDiligenceProductionPlace, @InjectModel(RiskMitigationFiles)private readonly riskMitigationFileModel : typeof RiskMitigationFiles, private readonly s3Service : S3Service, private apiCallHelper : ApiCallHelper, @Inject("SEQUELIZE")private readonly sequelize : Sequelize, @InjectModel(ProductionPlaceDisputes)private disputeModal : typeof ProductionPlaceDisputes, @InjectModel(ProductionPlaceDisputeComments)private disputeCommentModal : typeof ProductionPlaceDisputeComments, @InjectModel(DiligenceReport)private diligenceReportModal : typeof DiligenceReport) {}
+    /**
+  * 
+  * @param createProductionPlacesInput 
+  * @param token 
+  * @param userId 
+  * @returns 
+  */
+    async createProductionPlace(createProductionPlacesInput : CreateProductionPlacesInput, token : string, userId : number): Promise < Object > {
+        let t = await this.sequelize.transaction();
+        try {
+
+            const {dueDiligenceReportId, sourceType} = createProductionPlacesInput;
+
+            const diligenceReport = await this.diligenceReportModal.findOne({
+                where: {
+                    id: dueDiligenceReportId
+                },
+                transaction: t
+            });
+
+            if (! diligenceReport) {
+                throw new NotFoundException("Diligence Report not found.");
+            }
+
+            diligenceReport.productionPlaceSource = sourceType;
+
+            await diligenceReport.save({transaction: t});
+
+            // Convert areas from hectares to acres for all farms in all production places
+            createProductionPlacesInput.productionPlaces.forEach((productionPlace) => {
+                productionPlace.farms.forEach((farm) => {
+                    farm.area = farm.area * 2.47105; // Convert to acres
+                });
+            });
+
+            for (const createProductionPlaceInput of createProductionPlacesInput.productionPlaces) {
+                let {producerName, producerCountry, farms, copyOf} = createProductionPlaceInput;
+
+
+                const pp = await this.productionPlaceModel.findOne({
+                    where: {
+                        copyOf: copyOf,
+                        dueDiligenceReportId:dueDiligenceReportId
+                    },
+                    transaction: t
+                });
+
+                const pp1 = await this.productionPlaceModel.findOne({
+                  where: {
+                      id: copyOf,
+                      dueDiligenceReportId:dueDiligenceReportId
+                  },
+                  transaction: t
+              });
+              if(pp || pp1 && pp1.copyOf){
+                continue
+              }
+
+
+                const {firstName, lastName} = this.extractFirstAndLastName(producerName);
+
+                const userPayload = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    countryId: producerCountry
+                };
+
+                const user = await this.createUser(userPayload, t);
+
+                // Create farm;
+                // let farmData = [];
+                if (farms && farms.length > 0) {
+
+                    // for(const farm of farms){
+
+                    // const checkFarm = await this.userModel.findOne({
+                    //     where: {
+                    //       copyOf:farm.copyOf
+                    //     },
+                    //     transaction: t,
+                    // });
+
+                    // if(!checkFarm){
+                    //     farmData.push(farm);
+                    // }
+                    // }
+
+                    // farms = farmData;
+                    const farmPayload = farms.map((farm) => {
+                        let latitude: string,
+                            longitude: string;
+
+                        if (farm.farmType === FarmType.POINT) {
+                            ({centerLatitude: latitude, centerLongitude: longitude} = farm.pointCoordinates);
+                        } else if (farm.farmType === FarmType.POLYGON && farm.coordinates.length > 0) {
+                            ({latitude, longitude} = farm.coordinates[0]);
+                        }
+
+                        return {
+
+                            farmName: farm.farmName,
+                            area: (farm.farmType === FarmType.POINT && !farm.area) ? (DEFAULT_AREA_IN_HECTOR * HECTOR_TO_ACRE_FACTOR) : farm.area, // if area is not provided for POINT type then set 4ha by default,  // if area is not provided for POINT type then set 4ha by default;
+                            userId: user.id,
+                            address: farm.location,
+                            lat: latitude,
+                            log: longitude
+                        };
+                    });
+
+                    const createdFarms = await this.farmModel.bulkCreate(farmPayload, {transaction: t});
+
+                    // create FARM COORDINATES, FARM LOCATION, GEOFENCE, GEOFENCE CO ORDINATES
+                    for (let i = 0; i < farms.length; i++) {
+                        const farm = farms[i];
+                        const createFarmLocationPayload = {
+                            ... farm,
+                            farmId: createdFarms[i] ?. id,
+                            userId: user.id
+                        };
+                        await this.createFarmLocation(createFarmLocationPayload, t);
+                    }
+
+                    // Create production places
+                    const productionPayload = createdFarms.map((farm) => {
+                        return {copyOf: copyOf, farmId: farm.id, dueDiligenceReportId};
+                    });
+
+                    console.log(productionPayload, "productionPayload")
+
+                    await this.productionPlaceModel.bulkCreate(productionPayload, {transaction: t});
+
+                    for (const [index, farm] of farms.entries()) {
+                        const {
+                            farmName,
+                            farmType,
+                            area,
+                            location,
+                            coordinates,
+                            pointCoordinates
+                        } = farm;
+
+                        const userRes = await this.userModel.findOne({
+                            where: {
+                                id: user.id
+                            },
+                            transaction: t
+                        });
+
+                        // Map coordinates to lat and log
+                        const newCoordinates = coordinates ?. map((coord) => ({lat: coord.latitude, log: coord.longitude}));
+
+                        let latitude: string,
+                            longitude: string;
+
+                        if (farm.farmType === FarmType.POINT) {
+                            ({centerLatitude: latitude, centerLongitude: longitude} = farm.pointCoordinates);
+                        } else if (farm.farmType === FarmType.POLYGON && farm.coordinates.length > 0) {
+                            ({latitude, longitude} = farm.coordinates[0]);
+                        }
+
+                        // Create CF;
+                        const cfFarmPayload = {
+                            farmerFirstName: firstName,
+                            farmerLastName: lastName,
+                            countryId: producerCountry,
+                            farmName: farmName,
+                            area: (farm.farmType === FarmType.POINT && !farm.area) ? (4 * 2.47105) : farm.area, // if area is not provided for POINT type then set 4ha by default
+                            lat: latitude,
+                            log: longitude,
+                            address: location,
+                            isTechnician: index === 0 ? true : false,
+                            technicianId: index === 0 ? userId : null,
+                            userId: userRes ?. cf_userid,
+                            farmGeofenceType: farmType == FarmType.POINT ? "circular" : "polygon",
+                            // if farmtype circular;
+                            farmGeofenceRadius: pointCoordinates ?. radius ?? 0,
+                            farmGeofenceCenterLat: pointCoordinates ?. centerLatitude,
+                            farmGeofenceCenterLog: pointCoordinates ?. centerLongitude,
+                            // if farmtype polygon;
+                            farmGeofence: newCoordinates,
+                            recordId: new Date().getTime(),
+                            areaSyncFromDeforestation: true
+                        };
+
+                        const {status, data} = await this.createUserFarmInCF(cfFarmPayload, token, t);
+
+                        if (data ?. id) {
+                            await this.farmModel.update({
+                                cf_farmid: data.id
+                            }, {
+                                where: {
+                                    id: createdFarms[index].id
+                                },
+                                transaction: t
+                            });
+                        }
+
+                        if (data ?. farm ?. userId) {
+                            await this.userModel.update({
+                                cf_userid: data ?. farm ?. userId
+                            }, {
+                                where: {
+                                    id: user.id
+                                },
+                                transaction: t
+                            });
+                        }
+                    }
+                }
+            }
+
+            await t.commit();
+
+            return {success: true, message: "Successfully created production place."};
+        } catch (error) {
+            await t.rollback();
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+   * Edit production places
+   * @param updateProductionPlaceInput
+   * @param token
+   * @param userId
+   * @returns
+   */
+    async updateDueDiligenceReport(updateProductionPlaceInput : UpdateProductionPlacesInput, token : string, userId : number): Promise < Object > {
+        let t = await this.sequelize.transaction();
+        try {
+            const {
+                id,
+                dueDiligenceReportId,
+                producerName,
+                producerCountry,
+                farms
+            } = updateProductionPlaceInput;
+            const existingProductionPlace = await this.productionPlaceModel.findOne({
+                where: {
+                    id,
+                    dueDiligenceReportId
+                },
+                transaction: t
+            });
+
+            if (! existingProductionPlace) {
+                throw new HttpException("Production place not found", HttpStatus.NOT_FOUND);
+            }
+
+            const farmDetails = await this.farmModel.findOne({
+                where: {
+                    id: existingProductionPlace ?. farmId
+                },
+                include: [
+                    {
+                        model: Geofence,
+                        as: "GeoFences",
+                        required: false,
+                        include: [
+                            {
+                                model: GeofenceCoordinates,
+                                as: "geofenceCoordinates",
+                                required: false
+                            },
+                        ],
+                        where: {
+                            isPrimary: 1
+                        }
+                    }, {
+                        model: FarmCoordinates,
+                        as: "FarmCoordinates",
+                        required: false
+                    }, {
+                        model: User,
+                        as: "userAssoc",
+                        required: false
+                    },
+                ],
+                transaction: t
+            });
+            const {firstName, lastName} = this.extractFirstAndLastName(producerName);
+
+            const {
+                farmName,
+                area,
+                location,
+                farmType,
+                coordinates,
+                pointCoordinates
+            } = farms;
+
+            let user;
+            if (farmDetails) { // update the user if farm exists;
+                user = await this.userModel.findOne({
+                    where: {
+                        id: farmDetails.userId
+                    },
+                    transaction: t
+                });
+
+                if (user) {
+                    user.firstName = firstName;
+                    user.lastName = lastName;
+                    user.countryId = producerCountry;
+                    await user.save({transaction: t});
+                }
+
+                // update farm details here
+
+                farmDetails.farmName = farms ?. farmName;
+                farmDetails.area = farms ?. area.toString();
+                farmDetails.address = farms ?. location;
+                await farmDetails.save({transaction: t});
+
+                if (farms.farmType === FarmType.POINT) {
+                    const pointCoordinates = {
+                        geofenceCenterLat: farms.pointCoordinates.centerLatitude,
+                        geofenceCenterLog: farms.pointCoordinates.centerLongitude,
+                        geofenceRadius: parseFloat(farms.pointCoordinates.radius) ?? 0
+                    };
+
+                    // update geofence if exists or create new one
+                    const geofence = farmDetails.GeoFences.length ? farmDetails.GeoFences[0] : await this.geofenceModel.create({
+                        farmId: farmDetails.id,
+                        userId: user.id,
+                        ... pointCoordinates
+                    }, {transaction: t});
+
+                    if (geofence) {
+                        (geofence.geofenceCenterLat = pointCoordinates.geofenceCenterLat),
+                        (geofence.geofenceCenterLog = pointCoordinates.geofenceCenterLog),
+                        (geofence.geofenceRadius = pointCoordinates.geofenceRadius),
+                        await geofence.save({transaction: t});
+                    }
+                } else if (farms.farmType === FarmType.POLYGON && farms.coordinates) {
+                    const polygonCoordinates = farms.coordinates.map((coord) => ({lat: coord.latitude, log: coord.longitude, farmId: farmDetails.id, userId: user.id}));
+
+                    // update farm coordinates;
+                    await this.farmCoordinateModel.destroy({
+                        where: {
+                            farmId: farmDetails.id
+                        },
+                        transaction: t
+                    });
+
+                    await this.farmCoordinateModel.bulkCreate(polygonCoordinates, {transaction: t});
+
+                    // Update Geofence if exists or create new one
+                    const geofence = farmDetails.GeoFences.length ? farmDetails.GeoFences[0] : await this.geofenceModel.create({
+                        farmId: farmDetails.id
+                    }, {transaction: t});
+
+                    if (geofence) { // clear old coordinates;
+                        await this.geofenceCoordinateModel.destroy({
+                            where: {
+                                geofenceId: geofence.id
+                            },
+                            transaction: t
+                        });
+
+                        // create new geofencecoordinates;
+                        const geofenceCoordinates = farms.coordinates.map((coord) => ({geofenceId: geofence.id, lat: coord.latitude, log: coord.longitude}));
+
+                        await this.geofenceCoordinateModel.bulkCreate(geofenceCoordinates, {transaction: t});
+                    }
+                }
+
+            } else { // create farm;
+                const userPayload = {
+                    firstName,
+                    lastName,
+                    countryId: producerCountry
+                };
+
+                user = await this.createUser(userPayload, t);
+
+                const newFarmPayload = {
+                    farmName: farms.farmName,
+                    area: farms.farmType === FarmType.POINT && !farms.area ? 4 * 2.47105 : farms.area,
+                    userId: user.id,
+                    address: farms.location,
+                    lat: farms.farmType === FarmType.POINT ? farms.pointCoordinates.centerLatitude : farms.coordinates[0].latitude,
+                    log: farms.farmType === FarmType.POINT ? farms.pointCoordinates.centerLongitude : farms.coordinates[0].longitude
+                };
+                const newFarm = await this.farmModel.create(newFarmPayload, {transaction: t});
+
+                await this.productionPlaceModel.update({
+                    farmId: newFarm.id
+                }, {
+                    where: {
+                        id
+                    },
+                    transaction: t
+                });
+
+                if (farms.farmType === FarmType.POINT) {
+                    const pointCoordinates = {
+                        geofenceCenterLat: farms.pointCoordinates.centerLatitude,
+                        geofenceCenterLog: farms.pointCoordinates.centerLongitude,
+                        geofenceRadius: farms.pointCoordinates.radius ?? 0
+                    };
+
+                    await this.geofenceModel.create({
+                        farmId: newFarm.id,
+                        userId: user.id,
+                        ... pointCoordinates
+                    }, {transaction: t});
+                } else if (farms.farmType === FarmType.POLYGON && farms.coordinates) {
+                    const polygonCoordinates = farms.coordinates.map((coord) => ({lat: coord.latitude, log: coord.longitude, farmId: newFarm.id, userId: user.id}));
+
+                    await this.farmCoordinateModel.bulkCreate(polygonCoordinates, {transaction: t});
+
+                    // create geofence
+                    const geofencePayload = {
+                        userId: user.id,
+                        farmId: newFarm.id,
+                        geofenceArea: farms.area,
+                        isPrimary: 1
+                    };
+
+                    const geofence = await this.geofenceModel.create(geofencePayload, {transaction: t});
+
+                    const geofenceCoordinates = farms.coordinates.map((coord) => ({geofenceId: geofence.id, lat: coord.latitude, log: coord.longitude}));
+
+                    await this.geofenceCoordinateModel.bulkCreate(geofenceCoordinates, {transaction: t});
+                }
+            }
+
+
+            // Sync with CF data;
+            // Map coordinates to lat and log
+            const newCoordinates = coordinates ?. map((coord) => ({lat: coord.latitude, log: coord.longitude}));
+
+            let latitude: string,
+                longitude: string;
+
+            if (farmType === FarmType.POINT) {
+                ({centerLatitude: latitude, centerLongitude: longitude} = pointCoordinates);
+            } else if (farmType === FarmType.POLYGON) {
+                ({latitude, longitude} = coordinates[0]);
+            }
+
+            if (farmDetails.cf_farmid) {
+                const cfFarmPayload = {
+                    id: farmDetails.cf_farmid,
+                    farmerFirstName: firstName,
+                    farmerLastName: lastName,
+                    countryId: producerCountry,
+                    farmName: farmName,
+                    area: (farmType === FarmType.POINT && !area) ? (4 * 2.47105) : area, // if area is not provided for POINT type then set 4ha by default
+                    lat: farmType === FarmType.POINT ? pointCoordinates ?. centerLatitude : latitude,
+                    log: farmType === FarmType.POLYGON ? pointCoordinates ?. centerLongitude : longitude,
+                    address: location,
+                    userId: user ?. cf_userid,
+                    farmGeofenceType: farmType == FarmType.POINT ? "circular" : "polygon",
+                    // if farmtype polygon;
+                    farmGeofence: newCoordinates,
+                    recordId: new Date().getTime(),
+                    areaSyncFromDeforestation: true
+                };
+
+                await this.updateUserFarmInCF(cfFarmPayload, token, t);
+            }
+            await t.commit();
+
+            return {success: true, message: "Successfully updated the production places."};
+        } catch (error) {
+            await t.rollback();
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+   * 
+   * @param creatCFFarmInput 
+   * @param token 
+   * @param t 
+   * @returns 
+   */
+    createUserFarmInCF = async (creatCFFarmInput : any, token : string, t : any) => {
+        try { // Create CF User here
+            const endpoint = URL.CF_BASEURL + "/farm";
+
+            let {status, data} = await this.apiCallHelper.call(RequestMethod.POST, endpoint, {
+                "content-type": "application/json",
+                "oauth-token": token
+            }, creatCFFarmInput);
+            return data;
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    updateUserFarmInCF = async (updateCFFarmInput : any, token : string, t : any) => {
+        try { // Update CF data here
+            const endpoint = URL.CF_BASEURL + "/farm";
+
+            let {status, data} = await this.apiCallHelper.call(RequestMethod.PUT, endpoint, {
+                "content-type": "application/json",
+                "oauth-token": token
+            }, updateCFFarmInput);
+            return data;
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+    /**
+   * 
+   * @param createFarmLocationInput 
+   * @param t 
+   */
+    createFarmLocation = async (createFarmLocationInput : any, t : any) => {
+        const {
+            area,
+            userId,
+            farmId,
+            pointCoordinates,
+            coordinates,
+            farmType
+        } = createFarmLocationInput;
+        try {
+            const isPrimaryExists = await this.farmLocationModel.findOne({
+                where: {
+                    farmId: farmId,
+                    isDeleted: 0,
+                    isPrimary: 1
+                }
+            });
+
+            const farmLocationPayload = {
+                isPrimary: isPrimaryExists ? 0 : 1,
+                area: area ?? 0,
+                userId,
+                recordId: new Date().getTime()
+            };
+
+            const locationData = await FarmLocation.create(farmLocationPayload, {transaction: t});
+
+            if (farmType === FarmType.POINT && pointCoordinates) {
+                const {radius: geofenceRadius, centerLatitude, centerLongitude} = pointCoordinates;
+                const geofencePayload = {
+                    farmLocationId: locationData ?. id,
+                    userId,
+                    farmId,
+                    geofenceArea: area,
+                    geofenceRadius: geofenceRadius ?? 0,
+                    geofenceCenterLat: centerLatitude,
+                    geofenceCenterLog: centerLongitude,
+                    isPrimary: 1
+                };
+
+                await this.geofenceModel.create(geofencePayload, {transaction: t});
+            } else if (farmType === FarmType.POLYGON && coordinates) {
+                const geofencePayload = {
+                    farmLocationId: locationData ?. id,
+                    userId,
+                    farmId,
+                    geofenceArea: area,
+                    isPrimary: 1
+                };
+
+                const geofenceRes = await this.geofenceModel.create(geofencePayload, {transaction: t});
+
+                const polygonPayloads = coordinates.map((element : any) => ({
+                    geofenceId: geofenceRes ?. id,
+                    lat: element.latitude,
+                    log: element.longitude
+                }));
+
+                await this.geofenceCoordinateModel.bulkCreate(polygonPayloads, {transaction: t});
+
+                // Create user farm coordinates here
+                const coordinatePayload = coordinates.map((coord) => ({farmId: farmId, lat: coord.latitude, log: coord.longitude, userId: userId}));
+
+                await this.farmCoordinateModel.bulkCreate(coordinatePayload, {transaction: t});
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+
+    /**
+   * 
+   * @param payload 
+   * @param t 
+   * @returns 
+   */
+    async createUser(payload : any, t : any) {
+        return await this.userModel.create(payload, {transaction: t});
+    }
+
+    /**
+   * 
+   * @param fullName 
+   * @returns 
+   */
+    extractFirstAndLastName(fullName : string) {
+        const lastIndex = fullName.lastIndexOf(" ");
+        let firstName,
+            lastName;
+
+        if (lastIndex > 0) {
+            firstName = fullName.slice(0, lastIndex);
+            lastName = fullName.slice(lastIndex + 1);
+        } else {
+            firstName = fullName;
+            lastName = "";
+        }
+
+        return {firstName, lastName};
+    }
+
+    /**
+   * 
+   * @param dueDiligenceReportId 
+   * @param file 
+   * @param userId 
+   * @param token 
+   * @returns 
+   */
+    async processGeoJsonFile(dueDiligenceReportId : number, file : Express.Multer.File, userId : number, token : string): Promise < Object > {
+        const {
+            originalname,
+            buffer
+        } = file;
+
+        const transaction = await this.sequelize.transaction();
+
+        const filePath = path.join(__dirname, "./uploads", originalname);
+
+        try {
+            await fs.promises.writeFile(filePath, buffer);
+            const geoJsonData = await fs.promises.readFile(filePath, "utf8");
+            const geoJson = JSON.parse(geoJsonData);
+            await this.saveProductionPlacesForGeoJson(dueDiligenceReportId, geoJson, userId, token, transaction);
+            await fs.promises.unlink(filePath);
+
+            await transaction.commit();
+            return {success: true, message: "Successfully imported production place."};
+        } catch (error) {
+            await transaction.rollback();
+            throw new Error(error);
+        }
+    }
+
+    /**
+   * 
+   * @param dueDiligenceReportId 
+   * @param file 
+   * @param userId 
+   * @param token 
+   * @returns 
+   */
+    async processXmlFile(dueDiligenceReportId : number, file : Express.Multer.File, userId : number, token : string): Promise < Object > {
+        const {
+            originalname,
+            buffer
+        } = file;
+
+        const transaction = await this.sequelize.transaction();
+
+        const filePath = path.join(__dirname, "./uploads", originalname);
+
+        try {
+            await fs.promises.writeFile(filePath, buffer);
+            const xmlData = await fs.promises.readFile(filePath, "utf8");
+            const jsonData = await parseStringPromise(xmlData, {explictArray: false});
+
+
+            const geoJsonFormat = this.convertXmlToGeoJsonFormat(jsonData);
+
+            await this.saveProductionPlacesForGeoJson(dueDiligenceReportId, geoJsonFormat, userId, token, transaction);
+
+            await fs.promises.unlink(filePath);
+
+            await transaction.commit();
+            return {success: true, message: "Successfully imported production place."};
+        } catch (error) {
+            await transaction.rollback();
+            throw new Error(error);
+        }
+    }
+
+    /**
+   * 
+   * @param xmlData 
+   * @returns 
+   */
+    convertXmlToGeoJsonFormat(xmlData : any): any {
+        const features = xmlData.root.features.map((feature) => {
+            const properties = feature.properties;
+            const coordinates = feature.geometry[0].coordinates.map((coord) => [parseFloat(coord)]);
+
+            return {
+                type: "Feature",
+                properties: {
+                    ProducerName: properties[0].ProducerName[0],
+                    ProducerCountry: properties[0].ProducerCountry[0],
+                    ProductionPlace: properties[0].ProductionPlace[0]
+                },
+                geometry: {
+                    type: feature.geometry[0].type[0],
+                    coordinates: [coordinates]
+                }
+            };
+        });
+
+        return {type: "FeatureCollection", features: features};
+    }
+
+    /**
+   * 
+   * @param dueDiligenceReportId 
+   * @param data 
+   * @param userId 
+   * @param token 
+   * @param transaction 
+   */
+    async saveProductionPlacesForGeoJson(dueDiligenceReportId : number, data : any, userId : number, token : string, transaction : any): Promise < void > {
+        try {
+            const features = data.features;
+
+            const producerMap = new Map();
+
+            for (const feature of features) {
+                const {properties, geometry} = feature;
+                const producerName = properties.ProducerName || properties.ProductionPlace;
+
+                if (! producerMap.has(producerName)) {
+                    producerMap.set(producerName, {properties, features: []});
+                }
+
+                producerMap.get(producerName).features.push(feature);
+            }
+
+            for (const [producerName, producerData] of producerMap) {
+                const {properties, features} = producerData;
+                const {ProducerCountry} = properties;
+
+                let firstName,
+                    lastName;
+
+                if (producerName) {
+                    ({firstName, lastName} = this.extractFirstAndLastName(producerName));
+                }
+
+
+                const userPayload = {
+                    firstName: firstName || "",
+                    lastName: lastName || "",
+                    countryId: ProducerCountry || ""
+                };
+
+                const user = await this.createUser(userPayload, transaction);
+
+                const farmPayload = features.map((feature) => {
+                    const {properties, geometry} = feature;
+                    const {
+                        ProductionPlace,
+                        Area = 0
+                    } = properties;
+
+                    const farmType = geometry.type === "Point" ? "POINT" : "POLYGON";
+
+                    let latitude,
+                        longitude;
+
+                    if (farmType === FarmType.POINT) {
+                        [latitude, longitude] = geometry.coordinates;
+                    } else if (farmType === FarmType.POLYGON) {
+                        [latitude, longitude] = geometry.coordinates[0][0];
+                    }
+
+                    return {
+                        farmName: ProductionPlace || " ",
+                        area: farmType === FarmType.POINT && !Area ? 4 * 2.47105 : Area * 2.47105,
+                        userId: user.id,
+                        address: properties.Address || "",
+                        lat: latitude,
+                        log: longitude
+                    };
+                });
+
+                const createdFarms = await this.farmModel.bulkCreate(farmPayload, {transaction});
+
+                for (let i = 0; i < features.length; i++) {
+                    const feature = features[i];
+                    const {geometry, properties} = feature;
+                    const createFarmLocationPayload = {
+                        ...properties,
+                        farmId: createdFarms[i] ?. id,
+                        userId: user.id,
+                        farmType: geometry.type === "Point" ? "POINT" : "POLYGON",
+                        coordinates: geometry.type === "Polygon" ? geometry.coordinates[0].map((coord) => ({latitude: coord[0], longitude: coord[1]})) : [],
+                        pointCoordinates: geometry.type === "Point" ? {
+                            centerLatitude: geometry.coordinates[0],
+                            centerLongitude: geometry.coordinates[1],
+                            radius: geometry.coordinates[2] ?? 0
+                        } : null
+                    };
+
+                    await this.createFarmLocation(createFarmLocationPayload, transaction);
+                }
+
+                const productionPayload = createdFarms.map((farm) => ({farmId: farm.id, dueDiligenceReportId}));
+
+                await this.productionPlaceModel.bulkCreate(productionPayload, {transaction});
+
+                for (const [index, feature] of features.entries()) {
+                    const {geometry, properties} = feature;
+                    const newCoordinates = geometry.type === "Polygon" ? geometry.coordinates.flatMap((ring) => ring.map((coord) => ({lat: coord[1], log: coord[0]}))) : [];
+
+                    let latitude,
+                        longitude;
+                    if (geometry.type === "Point") {
+                        [latitude, longitude] = geometry.coordinates;
+                    } else if (geometry.type === "Polygon") {
+                        [latitude, longitude] = geometry.coordinates[0][0];
+                    }
+
+                    const cfFarmPayload = {
+                        farmerFirstName: firstName,
+                        farmerLastName: lastName,
+                        countryId: ProducerCountry || "",
+                        farmName: properties.ProductionPlace || "",
+                        area: geometry.type === "POINT" && !properties.Area ? 4 * 2.47105 : (properties.Area ?? 0 * 2.47105),
+                        lat: latitude,
+                        log: longitude,
+                        address: properties.Address || "",
+                        isTechnician: index === 0,
+                        technicianId: index === 0 ? userId : null,
+                        userId: user.id,
+                        farmGeofenceType: geometry.type === "Point" ? "circular" : "polygon",
+                        farmGeofenceRadius: geometry.type === "Point" ? geometry.coordinates[2] : null,
+                        farmGeofenceCenterLat: geometry.type === "Point" ? geometry.coordinates[0] : null,
+                        farmGeofenceCenterLog: geometry.type === "Point" ? geometry.coordinates[1] : null,
+                        farmGeofence: newCoordinates,
+                        recordId: new Date().getTime(),
+                        areaSyncFromDeforestation: true
+                    };
+                    const {status, data} = await this.createUserFarmInCF(cfFarmPayload, token, transaction);
+
+                    if (data ?. id) {
+                        await this.farmModel.update({
+                            cf_farmid: data.id
+                        }, {
+                            where: {
+                                id: createdFarms[index].id
+                            },
+                            transaction
+                        });
+                    }
+
+                    if (data ?. farm ?. userId) {
+                        await this.userModel.update({
+                            cf_userid: data ?. farm ?. userId
+                        }, {
+                            where: {
+                                id: user.id
+                            },
+                            transaction
+                        });
+                    }
+                }
+            }
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+
+    async findAll(filter? : ProductionPlaceFilterInput) {
+        const page = filter.page;
+        let limit = filter.limit;
+        const orgId = filter.orgId
+        const query = {
+            offset: 0,
+            limit: 10
+        };
+        if (page && limit) {
+            query.offset = (page - 1) * limit;
+            query.limit = limit;
+        }
+        const where: any = {};
+        if (filter.diligenceReportId !== undefined) {
+            where.dueDiligenceReportId = filter.diligenceReportId;
+        }
+        if (filter.removed !== undefined) {
+            where.removed = filter.removed;
+        }
+        if (filter.eudrDeforestationStatus) {
+            where.eudr_deforestation_status = filter.eudrDeforestationStatus;
+        }
+
+        if (filter.riskAssessmentStatus) {
+            where.riskAssessmentStatus = filter.riskAssessmentStatus;
+        }
+
+
+        if (filter ?. filterByDateOfRegister ?. length === 2) {
+            where.createdAt = {
+                [Op.between]: [
+                    new Date(filter.filterByDateOfRegister[0]),
+                    new Date(filter.filterByDateOfRegister[1])
+                ]
+            };
+        }
+
+        if (filter ?. filterByDateOfLastReport ?. length === 2) {
+            where.updatedAt = {
+                [Op.between]: [
+                    new Date(filter.filterByDateOfLastReport[0]),
+                    new Date(filter.filterByDateOfLastReport[1])
+                ]
+            };
+        }
+
+        const include = [
+            {
+                model: Farm,
+                where: {},
+                required: true,
+                include: [
+                    {
+                        model: Geofence,
+                        as: "GeoFences",
+                        required: false,
+                        include: [
+                            {
+                                model: GeofenceCoordinates,
+                                as: "geofenceCoordinates",
+                                required: false
+                            },
+                        ]
+                    }, {
+                        model: FarmCoordinates,
+                        as: "FarmCoordinates",
+                        required: false
+                    }, {
+                        model: User,
+                        as: "userAssoc",
+                        required: true,
+                        ...(orgId && {
+                            where: {
+                                organization: orgId
+                            }
+                        })
+                    },
+                ]
+            }, {
+                model: DiligenceReport,
+                required: true,
+                attributes: [
+                    'id', 'internalReferenceNumber', 'supplierId'
+                ],
+                include: [
+                    {
+                        model: User,
+                        required: false,
+                        attributes: [
+                            'id', 'firstName', 'lastName'
+                        ],
+                        as: 'supplier'
+                    }
+                ],
+                where: filter.supplierId ? {
+                    supplierId: filter.supplierId
+                } : {}
+            }
+        ];
+
+        console.log("8888888888888888888888==")
+
+        if (filter.farmCountry) {
+            include[0].where["country"] = filter.farmCountry;
+        }
+        if (filter.farmOwner) {
+            include[0].where["farmOwner"] = filter.farmOwner;
+        }
+
+        if (filter.internalRefNum) {
+            include[1].where["internalReferenceNumber"] = {
+                [Op.like]: `%${
+                    filter.internalRefNum
+                }%`
+            };
+        }
+
+        if (filter.searchPhrase) { // include[1].where["internalReferenceNumber"] = { [Op.like]: `%${filter.searchPhrase}%` };
+            include[0].where["farmName"] = {
+                [Op.like]: `%${
+                    filter.searchPhrase
+                }%`
+            };
+        }
+
+
+        let response: {totalCount?:any;count:any;rows:any};
+        console.log("8888888888888888888888==")
+
+        response = await this.productionPlaceModel.findAndCountAll({
+            where,
+            include,
+            offset: query.offset,
+            limit: query.limit,
+            distinct: true,
+            col: "id",
+            order: [
+                ['id', 'DESC']
+            ]
+        });
+
+        console.log(JSON.stringify(response, null, 2));
+
+        response.totalCount = response.count;
+        response.count = response.rows.length;
+
+        response.rows = response.rows.map((row) => {
+            let farmType = "Polygon";
+            const farm = row.farm;
+
+            if (farm && farm.GeoFences) {
+                for (const geofence of farm.GeoFences) {
+                    if (geofence.isPrimary === 1 && geofence.geofenceRadius !== null) {
+                        farmType = "Point";
+                        break;
+                    }
+                }
+            }
+
+            return {
+                ...row.toJSON(),
+                farmType: farmType
+            };
+        });
+
+        return response;
+    }
+
+    async findOne(id : number) {
+        const include = [{
+                model: Farm,
+                where: {},
+                required: true,
+                include: [
+                    {
+                        model: Geofence,
+                        as: "GeoFences",
+                        required: false,
+                        include: [
+                            {
+                                model: GeofenceCoordinates,
+                                as: "geofenceCoordinates",
+                                required: false
+                            },
+                        ]
+                    }, {
+                        model: FarmCoordinates,
+                        as: "FarmCoordinates",
+                        required: false
+                    }, {
+                        model: User,
+                        as: "userAssoc",
+                        required: false
+                    },
+                ]
+            },];
+        let productionPlace = await this.productionPlaceModel.findOne({where: {
+                id
+            }, include});
+        let farmType = "Polygon";
+
+        if (productionPlace.farm && productionPlace.farm.GeoFences) {
+            for (const geofence of productionPlace.farm.GeoFences) {
+                if (geofence.isPrimary === 1 && geofence.geofenceRadius !== null) {
+                    farmType = "Point";
+                    break;
+                }
+            }
+        }
+        const productionPlacePlain = productionPlace.toJSON();
+        const response: DueDiligenceProductionPlaceExtended = {
+            ... productionPlacePlain,
+            farmType: farmType
+        };
+        return response;
+    }
+
+    async riskMitigation(input : UpdateRiskMitigationInput): Promise < string > {
+        const {
+            id,
+            files,
+            ...updateData
+        } = input;
+        const transaction = await this.sequelize.transaction();
+        try {
+            const productionPlace = await this.productionPlaceModel.findByPk(id);
+            await productionPlace.update(updateData, {transaction});
+
+            if (files && files.length > 0) {
+                const fileRecords = files.map((file) => ({file_path: file, production_place_id: productionPlace.id}));
+                await this.riskMitigationFileModel.bulkCreate(fileRecords, {transaction});
+            }
+            await transaction.commit();
+
+            return "Risk mitigated manually.";
+        } catch (error) {
+            await transaction.rollback();
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async removeFarms(args : RemoveFarmArgs): Promise < {
+        success: boolean,
+        message: string
+    } > {
+        const {
+            diligence_report_id,
+            farm_id,
+            eudr_deforestation_status
+        } = args;
+        const whereClause: any = {};
+        if (diligence_report_id) {
+            whereClause.dueDiligenceReportId = diligence_report_id;
+        }
+        if (farm_id) {
+            whereClause.farmId = farm_id;
+        }
+        if (eudr_deforestation_status) {
+            whereClause.eudr_deforestation_status = eudr_deforestation_status;
+        }
+        const [updatedCount] = await this.productionPlaceModel.update(
+            {
+                removed: true
+            },
+            {where: whereClause}
+        );
+
+        if (updatedCount > 0) {
+            return {success: true, message: `Successfully removed from from production places.`};
+        } else {
+            return {success: false, message: "No farms found to remove"};
+        }
+    }
+
+    async restoreFarms(args : RestoreFarmsArgs): Promise < string > {
+        const {
+            diligence_report_id,
+            farm_id
+        } = args;
+        const whereClause: any = {
+            dueDiligenceReportId: diligence_report_id,
+            removed: true
+        };
+        if (farm_id !== undefined) {
+            whereClause.id = farm_id;
+        }
+
+        const [updatedCount] = await this.productionPlaceModel.update(
+            {
+                removed: false
+            },
+            {where: whereClause}
+        );
+        return `${updatedCount} farms restored.`;
+    }
+
+    async highRiskFarmRisksMitigation(input : HighRiskFarmMitigationInput): Promise < string > {
+        const {
+            due_diligence_report_id,
+            file,
+            ...updateData
+        } = input;
+        const whereClause: any = {
+            dueDiligenceReportId: due_diligence_report_id
+        };
+        whereClause.eudr_deforestation_status = {
+            [Op.or]: ["Very High Probability", "High Probability"]
+        };
+        const transaction = await this.sequelize.transaction();
+
+        try {
+            const productionPlaces = await this.productionPlaceModel.findAll({where: whereClause, attributes: ["id"], transaction});
+            const [updatedCount] = await this.productionPlaceModel.update(updateData, {
+                where: whereClause,
+                transaction
+            });
+
+            const fileRecords = productionPlaces.map((productionPlace : any) => ({file_path: file, production_place_id: productionPlace.id}));
+
+            await this.riskMitigationFileModel.bulkCreate(fileRecords, {transaction});
+            await transaction.commit();
+            return `Risk mitigated manually for ${updatedCount} high risk farms`;
+        } catch (error) {
+            await transaction.rollback();
+            throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async createProductionPlaceDispute(input : ProductionPlaceDisputeInput): Promise < ProductionPlaceDisputes > {
+        const dispute = {
+            productionPlaceId: input.productionPlaceId,
+            createdBy: input.createdBy,
+            title: input.title,
+            description: input.description,
+            s3Key: input.s3Key,
+            s3Location: input.s3Location
+        };
+
+        return await this.disputeModal.create(dispute)
+    }
+
+    async createProductionPlaceDisputeComment(input : DisputeCommentInput): Promise < ProductionPlaceDisputeComments > {
+        const comment = {
+            disputeId: input.disputeId,
+            commentedBy: input.commentedBy,
+            comment: input.comment,
+            s3Key: input.s3Key,
+            s3Location: input.s3Location
+        };
+        return await this.disputeCommentModal.create(comment)
+    }
+
+    async findProductionPlaceDisputes(filter? : ProductionPlaceDisputeFilterInput): Promise < ProductionPlaceDisputes[] > {
+
+        const where: any = {
+            productionPlaceId: filter.productionPlaceId
+        };
+
+        if (filter.disputeId) {
+            where.id = filter.disputeId;
+        }
+
+        const include = [
+            {
+                model: ProductionPlaceDisputeComments,
+                as: 'comments',
+                where: {},
+                required: true,
+                include: [
+                    {
+                        model: User,
+                        where: {},
+                        required: true
+                    }
+                ]
+            }, {
+                model: DueDiligenceProductionPlace,
+                where: {},
+                required: true
+            }, {
+                model: User,
+                where: {},
+                required: true
+            }
+        ];
+
+        return await this.disputeModal.findAll(
+            {
+                where,
+                include,
+                order: [
+                    [
+                        'createdAt', 'ASC'
+                    ],
+                    [
+                        {
+                            model: ProductionPlaceDisputeComments,
+                            as: 'comments'
+                        },
+                        'createdAt',
+                        'ASC'
+                    ],
+                ]
+            }
+        );
+
+    }
+
+
+    // ///=============================================
+    /**
+   * 
+   * @param dueDiligenceReportId 
+   * @param file 
+   * @param userId 
+   * @param token 
+   * @returns 
+   */
+    async processSupplierGeoJsonFile(file : Express.Multer.File, userId : number, token : string): Promise < Object > {
+        const {
+            originalname,
+            buffer
+        } = file;
+
+        const transaction = await this.sequelize.transaction();
+
+        // const filePath = path.join(__dirname, "./uploads", originalname);
+        const filePath = path.join("/media/subodh/Official/houseProject/dimitra/CF_Deforestation_Farmer_Service/uploads/", originalname);
+
+        try {
+            await fs.promises.writeFile(filePath, buffer);
+            const geoJsonData = await fs.promises.readFile(filePath, "utf8");
+            const geoJson = JSON.parse(geoJsonData);
+            await this.saveSupplierProductionPlacesForGeoJson(geoJson, userId, token, transaction);
+            await fs.promises.unlink(filePath);
+
+            await transaction.commit();
+            return {success: true, message: "Successfully imported production place."};
+        } catch (error) {
+            await transaction.rollback();
+            throw new Error(error);
+        }
+    }
+
+    /**
+   * 
+   * @param dueDiligenceReportId 
+   * @param file 
+   * @param userId 
+   * @param token 
+   * @returns 
+   */
+    async processSupplierXmlFile(file : Express.Multer.File, userId : number, token : string): Promise < Object > {
+        const {
+            originalname,
+            buffer
+        } = file;
+
+        const transaction = await this.sequelize.transaction();
+
+        // const filePath = path.join(__dirname, "./uploads", originalname);
+        const filePath = path.join("/media/subodh/Official/houseProject/dimitra/CF_Deforestation_Farmer_Service/uploads/", originalname);
+
+        // const filePath = "/media/subodh/Official/houseProject/dimitra/CF_Deforestation_Farmer_Service/uploads/";
+
+        try {
+            await fs.promises.writeFile(filePath, buffer);
+            const xmlData = await fs.promises.readFile(filePath, "utf8");
+            console.log(xmlData, "xmlDataxmlData")
+
+            const jsonData = await parseStringPromise(xmlData, {explictArray: false});
+            console.log(jsonData, "jsonDatajsonData")
+
+
+            const geoJsonFormat = this.convertXmlToGeoJsonFormat(jsonData);
+            console.log(geoJsonFormat, "geoJsonFormatgeoJsonFormatgeoJsonFormat")
+            await this.saveSupplierProductionPlacesForGeoJson(geoJsonFormat, userId, token, transaction);
+
+            await fs.promises.unlink(filePath);
+
+            await transaction.commit();
+            return {success: true, message: "Successfully imported production place."};
+        } catch (error) {
+            await transaction.rollback();
+            throw new Error(error);
+        }
+    }
+
+    /**
+   * 
+   * @param xmlData 
+   * @returns 
+   */
+    convertSupplierXmlToGeoJsonFormat(xmlData : any): any {
+        const features = xmlData.root.features.map((feature) => {
+            const properties = feature.properties;
+            const coordinates = feature.geometry[0].coordinates.map((coord) => [parseFloat(coord)]);
+
+            return {
+                type: "Feature",
+                properties: {
+                    ProducerName: properties[0].ProducerName[0],
+                    ProducerCountry: properties[0].ProducerCountry[0],
+                    ProductionPlace: properties[0].ProductionPlace[0]
+                },
+                geometry: {
+                    type: feature.geometry[0].type[0],
+                    coordinates: [coordinates]
+                }
+            };
+        });
+
+        return {type: "FeatureCollection", features: features};
+    }
+
+    /**
+   * 
+   * @param dueDiligenceReportId 
+   * @param data 
+   * @param userId 
+   * @param token 
+   * @param transaction 
+   */
+    async saveSupplierProductionPlacesForGeoJson(data : any, userId : number, token : string, transaction : any): Promise < void > {
+        try {
+            const features = data.features;
+
+            const producerMap = new Map();
+
+            for (const feature of features) {
+                const {properties, geometry} = feature;
+                const producerName = properties.ProducerName || properties.ProductionPlace;
+
+                if (! producerMap.has(producerName)) {
+                    producerMap.set(producerName, {properties, features: []});
+                }
+
+                producerMap.get(producerName).features.push(feature);
+            }
+
+            for (const [producerName, producerData] of producerMap) {
+                const {properties, features} = producerData;
+                const {ProducerCountry} = properties;
+
+                let firstName,
+                    lastName;
+
+                if (producerName) {
+                    ({firstName, lastName} = this.extractFirstAndLastName(producerName));
+                }
+
+
+                const userPayload = {
+                    firstName: firstName || "",
+                    lastName: lastName || "",
+                    countryId: ProducerCountry || ""
+                };
+
+                const user = await this.createUser(userPayload, transaction);
+
+                const farmPayload = features.map((feature) => {
+                    const {properties, geometry} = feature;
+                    const {
+                        ProductionPlace,
+                        Area = 0
+                    } = properties;
+
+                    const farmType = geometry.type === "Point" ? "POINT" : "POLYGON";
+
+                    let latitude,
+                        longitude;
+
+                    if (farmType === FarmType.POINT) {
+                        [latitude, longitude] = geometry.coordinates;
+                    } else if (farmType === FarmType.POLYGON) {
+                        [latitude, longitude] = geometry.coordinates[0][0];
+                    }
+
+                    return {
+                        farmName: ProductionPlace || " ",
+                        area: farmType === FarmType.POINT && !Area ? 4 * 2.47105 : Area * 2.47105,
+                        userId: user.id,
+                        address: properties.Address || "",
+                        lat: latitude,
+                        log: longitude
+                    };
+                });
+
+
+                let createdFarms = [];
+                let numberOfRowsInserted = 0;
+                let numberOfRowsFailed = 0;
+                let errors = [];
+
+
+                const treesUploadHistory = {
+                    numberOfRowsFailed: 0,
+                    numberOfRowsInserted: 0,
+                    // fileName: req.file.originalname,
+                    // userId: user.id,
+                    // key: uploadRes.Key,
+                };
+                const uploadHistory = await this.farmUploadHistoryModel.create(treesUploadHistory,);
+
+
+                for (const fp of farmPayload) {
+                    numberOfRowsInserted = numberOfRowsInserted + 1;
+                    const createdFarm = await this.farmModel.create({
+                        ... fp,
+                        uploadhistoryId: uploadHistory.id
+                    });
+                    createdFarms.push(createdFarm);
+                }
+
+                for (let i = 0; i < features.length; i++) {
+                    const feature = features[i];
+                    const {geometry, properties} = feature;
+                    const createFarmLocationPayload = {
+                        ...properties,
+                        farmId: createdFarms[i] ?. id,
+                        userId: user.id,
+                        farmType: geometry.type === "Point" ? "POINT" : "POLYGON",
+                        coordinates: geometry.type === "Polygon" ? geometry.coordinates[0].map((coord) => ({latitude: coord[0], longitude: coord[1]})) : [],
+                        pointCoordinates: geometry.type === "Point" ? {
+                            centerLatitude: geometry.coordinates[0],
+                            centerLongitude: geometry.coordinates[1],
+                            radius: geometry.coordinates[2] ?? 0
+                        } : null
+                    };
+
+                    await this.createFarmLocation(createFarmLocationPayload, transaction);
+                }
+
+                // const productionPayload = createdFarms.map((farm) => ({
+                // farmId: farm.id,
+                // dueDiligenceReportId,
+                // }));
+
+                // await this.productionPlaceModel.bulkCreate(productionPayload, {
+                // transaction,
+                // });
+
+                for (const [index, feature] of features.entries()) {
+                    const {geometry, properties} = feature;
+                    const newCoordinates = geometry.type === "Polygon" ? geometry.coordinates.flatMap((ring) => ring.map((coord) => ({lat: coord[1], log: coord[0]}))) : [];
+
+                    let latitude,
+                        longitude;
+                    if (geometry.type === "Point") {
+                        [latitude, longitude] = geometry.coordinates;
+                    } else if (geometry.type === "Polygon") {
+                        [latitude, longitude] = geometry.coordinates[0][0];
+                    }
+
+                    const cfFarmPayload = {
+                        farmerFirstName: firstName,
+                        farmerLastName: lastName,
+                        countryId: ProducerCountry || "",
+                        farmName: properties.ProductionPlace || "",
+                        area: geometry.type === "POINT" && !properties.Area ? 4 * 2.47105 : (properties.Area ?? 0 * 2.47105),
+                        lat: latitude,
+                        log: longitude,
+                        address: properties.Address || "",
+                        isTechnician: index === 0,
+                        technicianId: index === 0 ? userId : null,
+                        userId: user.id,
+                        farmGeofenceType: geometry.type === "Point" ? "circular" : "polygon",
+                        farmGeofenceRadius: geometry.type === "Point" ? geometry.coordinates[2] : null,
+                        farmGeofenceCenterLat: geometry.type === "Point" ? geometry.coordinates[0] : null,
+                        farmGeofenceCenterLog: geometry.type === "Point" ? geometry.coordinates[1] : null,
+                        farmGeofence: newCoordinates,
+                        recordId: new Date().getTime(),
+                        areaSyncFromDeforestation: true
+                    };
+                    const {status, data} = await this.createUserFarmInCF(cfFarmPayload, token, transaction);
+
+                    if (data ?. id) {
+                        await this.farmModel.update({
+                            cf_farmid: data.id
+                        }, {
+                            where: {
+                                id: createdFarms[index].id
+                            },
+                            transaction
+                        });
+                    }
+
+                    if (data ?. farm ?. userId) {
+                        await this.userModel.update({
+                            cf_userid: data ?. farm ?. userId
+                        }, {
+                            where: {
+                                id: user.id
+                            },
+                            transaction
+                        });
+                    }
+
+
+                    await this.farmUploadHistoryModel.update({
+                        numberOfRowsFailed,
+                        numberOfRowsInserted,
+                        errors: JSON.stringify(errors)
+                    }, {
+                        where: {
+                            id: uploadHistory.id
+                        }
+                    });
+
+
+                }
+            }
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+}

@@ -1,0 +1,50 @@
+"use strict";
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    /**
+     * Add altering commands here.
+     *
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
+     */
+    await queryInterface.addColumn(
+      "due_diligence_production_places",
+      "eudr_s3_key",
+      {
+        type: Sequelize.STRING,
+        allowNull: true,
+        after: "eudr_deforestation_status",
+      }
+    );
+    await queryInterface.addColumn(
+      "due_diligence_production_places",
+      "eudr_s3_location",
+      {
+        type: Sequelize.STRING,
+        allowNull: true,
+        after: "eudr_s3_key",
+      }
+    );
+
+    await queryInterface.addColumn(
+      "due_diligence_production_places",
+      "eudr_comment",
+      {
+        type: Sequelize.STRING,
+        allowNull: true,
+        after: "eudr_s3_location",
+      }
+    );
+  },
+
+  async down(queryInterface, Sequelize) {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+  },
+};

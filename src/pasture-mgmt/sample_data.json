@@ -1,0 +1,779 @@
+'[
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "NDVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "LSWI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "RECI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "MSAVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "NDRE"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "ARVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "BI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "BI2"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "BSI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "DVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "EVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "GCI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "GNDVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "GSAVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "MSI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "NBR"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "NDGI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "SAVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "NDWI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "OSAVI"
+    },
+    {
+        "userId": 246,
+        "dateOfInterest": "2022-08-15",
+        "locationName": "testy",
+        "segment": "",
+        "createdAt": "2022-09-16 13:53:43",
+        "status": "PENDING",
+        "centerLatitude": 27.74275287237966,
+        "centerLongitude": 85.40258210152388,
+        "coordinates": [
+            {
+                "latitude": 27.742752872379658,
+                "longitude": 85.40357854217291
+            },
+            {
+                "latitude": 27.74126860405632,
+                "longitude": 85.40339279919863
+            },
+            {
+                "latitude": 27.742169347884804,
+                "longitude": 85.4023963585496
+            },
+            {
+                "latitude": 27.743070091713285,
+                "longitude": 85.40139991790056
+            },
+            {
+                "latitude": 27.743653616208142,
+                "longitude": 85.40258210152388
+            },
+            {
+                "latitude": 27.744237140703,
+                "longitude": 85.40376428514719
+            }
+        ],
+        "reportType": "SIPI"
+    }
+]'

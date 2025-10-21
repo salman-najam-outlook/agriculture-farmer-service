@@ -1,0 +1,49 @@
+{
+    "farmName": "test amit farm",
+    "registrationNo": "",
+    "lat": 27.6576567,
+    "log": 85.3396935,
+    "address": "Mahalaxmi 44700, Nepal",
+    "area": 0,
+    "areaUomId": null,
+    "parameter": 0,
+    "parameterUomId": 0,
+    "farmOwnershipType": "community",
+    "farmGeofence": [
+        {
+            "lat": 27.657149868992484,
+            "log": 85.33931357242331
+        },
+        {
+            "lat": 27.657664181213413,
+            "log": 85.3396725654602
+        },
+        {
+            "lat": 27.6587852740691,
+            "log": 85.34124476291403
+        },
+        {
+            "lat": 27.656675625883686,
+            "log": 85.34229618884787
+        },
+        {
+            "lat": 27.656760699736253,
+            "log": 85.34080488063559
+        }
+    ],
+    "farmType": 639,
+    "productionSystem": 645,
+    "farmOwner": 123156,
+    "country": "India",
+    "state": "state",
+    "city": "city",
+    "govRegistrationNum": "goct reg no",
+    "contractMating": "contract mating eg",
+    "cooperativeId": "coop id",
+    "licenceNum": "license no",
+    "licenceExpiryDate": "2022-10-03",
+    "regulatorName": "regulator name",
+    "houseNum": "house no",
+    "street": "street",
+    "regulatorRepresentiveName": " regular rep name"
+}

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            html {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            body {
+                font-family: "Poppins", sans-serif;
+            }
+            .row {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                margin: 15px 0;
+            }
+            .align-start {
+                align-items: start !important;
+            }
+            .paddedx {
+                padding: 0 25px;
+            }
+            .index-indicator { 
+                height: 15px;
+                width: 15px;
+            }
+            .index-label {
+                font-size: 0.8em;
+                color: #787878;
+                padding: 0;
+                margin: 0;
+            }
+            .header-logo {
+                background-color: #117443;
+                margin: 0 25px;
+            }
+            .header-logo img {
+                height: 100px;
+                width: auto;
+                margin: 0;
+            }
+            .header-title {
+                display: flex;
+                flex-grow: 1;
+                justify-content: start;
+                align-items: center;
+                background-color: #117443;
+                border-radius: 25px 0 0 25px;
+                color: white;
+                padding: 25px;
+            }
+            .header-title h1 {
+                text-transform: uppercase;
+            }
+            .fullx {
+                width: 100%;
+            }
+            .separator {
+                visibility: hidden;
+                height: 10px;
+            }
+            .muted {
+                color: #787878;
+            }
+            .labelled {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: start;
+                gap: 4px;
+            }
+            .labelled > p, .labelled > h4 {
+                margin: 0;
+                font-size: 0.8em;
+            }
+            .map-container {
+                margin-top: 25px;
+            }
+
+            /* Basic Bootstrap table */
+            .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12, .col,
+            .col-auto, .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm,
+            .col-sm-auto, .col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12, .col-md,
+            .col-md-auto, .col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg,
+            .col-lg-auto, .col-xl-1, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-10, .col-xl-11, .col-xl-12, .col-xl,
+            .col-xl-auto {
+              position: relative;
+              width: 100%;
+              min-height: 1px;
+              padding-right: 15px;
+              padding-left: 15px;
+            }
+            .square{
+              width: 20px;
+              height: 20px;
+              border-radius: 5px;
+            }
+            .text-left {
+              text-align: left !important;
+            }
+            .text-right {
+              text-align: right !important;
+            }
+            .mb-3,
+            .my-3 {
+              margin-bottom: 1rem !important;
+            }
+            .font-weight-bold {
+              font-weight: 700 !important;
+            }
+            .bg-success {
+              background-color: #7ae092 !important;
+            }
+            html {
+              font-family: sans-serif;
+              line-height: 1.15;
+              -webkit-text-size-adjust: 100%;
+              -ms-text-size-adjust: 100%;
+              -ms-overflow-style: scrollbar;
+              -webkit-tap-highlight-color: transparent;
+            }
+            .btn {
+              display: inline-block;
+              font-weight: 400;
+              text-align: center;
+              white-space: nowrap;
+              vertical-align: middle;
+              user-select: none;
+              border: 1px solid transparent;
+              padding: 0.375rem 0.75rem;
+              font-size: 1rem;
+              line-height: 1.5;
+              border-radius: 0.25rem;
+              transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+              border-color: currentColor;
+              background-color: transparent;
+            }
+            .btn-outline-warning {
+              color: #ffc107;
+              background-color: transparent;
+              background-image: none;
+              border-color: #ffc107;
+            }
+            .bg-warning {
+              background-color: #ffc107 !important;
+            }
+            
+            .table {
+              width: 100%;
+              max-width: 100%;
+              margin-bottom: 1rem;
+              background-color: transparent;
+              border-collapse: collapse;
+            }
+            
+            .table th,
+            .table td {
+              padding: 0.75rem;
+              vertical-align: top;
+              border-top: 1px solid #dee2e6;
+            }
+            
+            .table thead th {
+              vertical-align: bottom;
+              border-bottom: 2px solid #dee2e6;
+            }
+            
+            .table tbody + tbody {
+              border-top: 2px solid #dee2e6;
+            }
+            
+            .table .table {
+              background-color: #fff;
+            }
+            
+            .table-sm th,
+            .table-sm td {
+              padding: 0.3rem;
+            }
+            
+            .table-bordered {
+              border: 1px solid #dee2e6;
+            }
+            
+            .table-bordered th,
+            .table-bordered td {
+              border: 1px solid #dee2e6;
+            }
+            
+            .table-bordered thead th,
+            .table-bordered thead td {
+              border-bottom-width: 2px;
+            }
+            
+            .table-striped tbody tr:nth-of-type(odd) {
+              background-color: rgba(0, 0, 0, 0.05);
+            }
+            
+            .table-hover tbody tr:hover {
+              background-color: rgba(0, 0, 0, 0.075);
+            }
+            
+            .table-primary,
+            .table-primary > th,
+            .table-primary > td {
+              background-color: #b8daff;
+            }
+            
+            .table-hover .table-primary:hover {
+              background-color: #9fcdff;
+            }
+            
+            .table-hover .table-primary:hover > td,
+            .table-hover .table-primary:hover > th {
+              background-color: #9fcdff;
+            }
+            
+            .table-secondary,
+            .table-secondary > th,
+            .table-secondary > td {
+              background-color: #d6d8db;
+            }
+            
+            .table-hover .table-secondary:hover {
+              background-color: #c8cbcf;
+            }
+            
+            .table-hover .table-secondary:hover > td,
+            .table-hover .table-secondary:hover > th {
+              background-color: #c8cbcf;
+            }
+            
+            .table-success,
+            .table-success > th,
+            .table-success > td {
+              background-color: #c3e6cb;
+            }
+            
+            .table-hover .table-success:hover {
+              background-color: #b1dfbb;
+            }
+            
+            .table-hover .table-success:hover > td,
+            .table-hover .table-success:hover > th {
+              background-color: #b1dfbb;
+            }
+            
+            .table-info,
+            .table-info > th,
+            .table-info > td {
+              background-color: #bee5eb;
+            }
+            
+            .table-hover .table-info:hover {
+              background-color: #abdde5;
+            }
+            
+            .table-hover .table-info:hover > td,
+            .table-hover .table-info:hover > th {
+              background-color: #abdde5;
+            }
+            
+            .table-warning,
+            .table-warning > th,
+            .table-warning > td {
+              background-color: #ffeeba;
+            }
+            
+            .table-hover .table-warning:hover {
+              background-color: #ffe8a1;
+            }
+            
+            .table-hover .table-warning:hover > td,
+            .table-hover .table-warning:hover > th {
+              background-color: #ffe8a1;
+            }
+            
+            .table-danger,
+            .table-danger > th,
+            .table-danger > td {
+              background-color: #f5c6cb;
+            }
+            
+            .table-hover .table-danger:hover {
+              background-color: #f1b0b7;
+            }
+            
+            .table-hover .table-danger:hover > td,
+            .table-hover .table-danger:hover > th {
+              background-color: #f1b0b7;
+            }
+            
+            .table-light,
+            .table-light > th,
+            .table-light > td {
+              background-color: #fdfdfe;
+            }
+            
+            .table-hover .table-light:hover {
+              background-color: #ececf6;
+            }
+            
+            .table-hover .table-light:hover > td,
+            .table-hover .table-light:hover > th {
+              background-color: #ececf6;
+            }
+            
+            .table-dark,
+            .table-dark > th,
+            .table-dark > td {
+              background-color: #c6c8ca;
+            }
+            
+            .table-hover .table-dark:hover {
+              background-color: #b9bbbe;
+            }
+            
+            .table-hover .table-dark:hover > td,
+            .table-hover .table-dark:hover > th {
+              background-color: #b9bbbe;
+            }
+            
+            .table-active,
+            .table-active > th,
+            .table-active > td {
+              background-color: rgba(0, 0, 0, 0.075);
+            }
+            
+            .table-hover .table-active:hover {
+              background-color: rgba(0, 0, 0, 0.075);
+            }
+            
+            .table-hover .table-active:hover > td,
+            .table-hover .table-active:hover > th {
+              background-color: rgba(0, 0, 0, 0.075);
+            }
+            
+            .table .thead-dark th {
+              color: #fff;
+              background-color: #212529;
+              border-color: #32383e;
+            }
+            
+            .table .thead-light th {
+              color: #495057;
+              background-color: #e9ecef;
+              border-color: #dee2e6;
+            }
+            
+            .table-dark {
+              color: #fff;
+              background-color: #212529;
+            }
+            
+            .table-dark th,
+            .table-dark td,
+            .table-dark thead th {
+              border-color: #32383e;
+            }
+            
+            .table-dark.table-bordered {
+              border: 0;
+            }
+            
+            .table-dark.table-striped tbody tr:nth-of-type(odd) {
+              background-color: rgba(255, 255, 255, 0.05);
+            }
+            
+            .table-dark.table-hover tbody tr:hover {
+              background-color: rgba(255, 255, 255, 0.075);
+            }
+            
+            
+              </style>
+        
+              <script lang="javascript">
+            function serverToGoogleCoordinates({latitude, longitude}) {
+                return {
+                    lat: latitude,
+                    lng: longitude
+                };
+            }
+
+            async function initializeMap() {
+                class DeforestationOverlay extends google.maps.OverlayView {
+                    bounds_;
+                    image_;
+                    div_;
+
+                    constructor(bounds, image, mapContainer) {
+                        super();
+                        this.bounds_ = bounds;
+                        this.image_ = image;
+                        this.div_ = null;
+                    }
+                    
+                    onAdd() {
+                        this.div_ = document.createElement("div");
+                        this.div_.style.borderStyle = "none";
+                        this.div_.style.borderWidth = "0px";
+                        this.div_.style.position = "absolute";
+
+                        const img = document.createElement("img");
+                        img.setAttribute("id", "deforestationImgOverlay");
+
+                        img.src = this.image_;
+                        img.style.width = "100%";
+                        img.style.height = "100%";
+                        img.style.position = "absolute";
+                        this.div_.appendChild(img);
+
+                        const panes = this.getPanes();
+
+                        panes.overlayLayer.appendChild(this.div_);
+                    }
+
+                    draw() {
+                        const overlayProjection = this.getProjection();
+                        const sw = overlayProjection.fromLatLngToDivPixel(
+                            this.bounds_.getSouthWest()
+                        );
+                        const ne = overlayProjection.fromLatLngToDivPixel(
+                            this.bounds_.getNorthEast()
+                        );
+
+                        if (this.div_) {
+                            this.div_.style.left = sw.x + "px";
+                            this.div_.style.top = ne.y + "px";
+                            this.div_.style.width = ne.x - sw.x + "px";
+                            this.div_.style.height = sw.y - ne.y + "px";
+                        }
+                    }
+
+                    onRemove() {
+                        if (this.div_) {
+                            this.div_.parentNode.removeChild(this.div_);
+                            this.div_ = null;
+                        }
+                    }
+                }
+
+                const centerCoordinates = {
+                    lat: Number.parseFloat('<%- JSON.stringify(report.centerLatitude) %>'),
+                    lng: Number.parseFloat('<%- JSON.stringify(report.centerLongitude) %>')
+                }
+                console.log(JSON.stringify(centerCoordinates), "centerCoordinates")
+
+                const map = new google.maps.Map(document.getElementById('map'), {
+                    mapTypeId: 'satellite',
+                    zoom: 15,
+                    disableDefaultUI: true,
+                    center: centerCoordinates,
+                });
+
+                const deforestationImageSrc = '<%- JSON.stringify(report.sateliteResponse[0].imagePath) %>';
+                const reportType = '<%- JSON.stringify(report.reportType) %>';
+
+                let bounds;
+
+                if (reportType === "REGISTERED_FARM") {
+                    const coordinates = JSON.parse('<%- coordinates %>');
+
+                    const polygon = new google.maps.Polygon({
+                        paths: [
+                            ...coordinates.map((coordinate) => serverToGoogleCoordinates(coordinate)),
+                            serverToGoogleCoordinates(coordinates[0])
+                        ],
+                        strokeColor: 'transparent',
+                        fillColor: 'transparent',
+                        editable: false,
+                        draggable: false,
+                    });
+
+                    const paths = polygon.getPaths();
+                    bounds = new google.maps.LatLngBounds();
+                    
+                    paths.forEach((path) => {
+                        const pathArray = path.getArray();
+
+                        for (var i = 0, l = pathArray.length; i < l; i++) {
+                            bounds.extend(pathArray[i]);
+                        }
+                    });
+                } else {
+                    console.log("Here");
+                    const geometry = await google.maps.importLibrary("geometry");
+                    
+                    console.log(JSON.stringify(centerCoordinates), "centerCoordinates")
+         
+                    const radius = Number.parseFloat('<%- JSON.stringify(report.radius) %>') * Math.sqrt(2.0);
+                    const center = new google.maps.LatLng(centerCoordinates);
+                    console.log(radius, "radius")
+                    console.log(JSON.stringify(center), "center")
+
+                    const sw = geometry.spherical.computeOffset(center, radius, 45);
+                    const ne = geometry.spherical.computeOffset(center, radius, 225);
+
+                    console.log(JSON.stringify(sw), "sw")
+                    console.log(JSON.stringify(ne), "ne")
+                    bounds = new google.maps.LatLngBounds(sw, ne);
+                }
+
+                console.log(JSON.stringify(bounds), "fit bound bound")
+                setTimeout(() => {
+                    if (typeof map !== 'undefined') map.fitBounds(bounds, 0)
+                }, 10000);
+                // map.fitBounds(bounds, 0);
+                
+                const deforestationOverlay = new DeforestationOverlay(
+                    bounds, 
+                    deforestationImageSrc, 
+                    document.getElementById("map")
+                );
+
+                deforestationOverlay.setMap(map);
+
+                map.addListener("tilesloaded", () => {
+                    setTimeout(() => {
+                        document.getElementById('map').style.visibility = 'visible';
+                    }, 3000);
+                })
+            }
+    
+            window.initMap = initializeMap;
+        </script>
+        <title>Forest Assessment Report</title>
+        <meta
+          name="author"
+          content="Forest Assessment Report"
+        />
+    </head>
+    <body>
+        <header>
+            <div class="row">
+                <div class="header-logo paddedx">
+                    <img src="data:image/png;base64, <%= logo %>" alt="Logo">
+                </div>
+                <div class="header-title">
+                    <h2><%= t('message.assessment_report', {lang}) %></h2>
+                </div>
+            </div>
+        </header>
+        <hr class="separator" />
+        <main>
+            <div class="details-container">
+                <div class="row paddedx align-start">
+                    <!-- Farm Id -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farm_id', {lang}) %></p>
+                        <h4><%= report.farmUUID ?  report.farmUUID : 'N/A' %></h4>
+                    </div>
+
+                    <!-- Farm Name -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farm_name', {lang}) %></p>
+                        <h4><%= report.farm?.farmName ?? report.farmName ?? 'N/A' %></h4>
+                    </div>
+
+                    <!-- Farm Registration Id -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farm_registration_id', {lang}) %></p>
+                        <h4><%= report.farmRegistrationId ?? 'N/A' %></h4>
+                    </div>
+
+                    <!-- Farm Location -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farm_location', {lang}) %></p>
+                        <h4><%= report.locationName ?? 'N/A' %></h4>
+                    </div>
+                </div>
+                <div class="row paddedx align-start">
+                    <!-- Farmer Id -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farmer_id', {lang}) %></p>
+                        <h4><%= report.farmerUUID ? report.farmerUUID : 'N/A' %></h4>
+                    </div>
+
+                    <!-- Farmer Name -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farmer_name', {lang}) %></p>
+                        <h4><%= report.farmerName ?? 'N/A' %></h4>
+                    </div>
+
+                    <!-- Farmer Registration Id -->
+                    <div class="labelled">
+                        <p class="muted"><%= t('message.farmer_registration_id', {lang}) %></p>
+                        <h4><%= report.farmerRegistrationId ?? 'N/A' %></h4>
+                    </div>
+
+                    <!-- blank col -->
+                     <div class="labelled">
+                    </div>
+
+                    <!-- Area -->
+                    <!-- <div class="labelled">
+                        <p class="muted"><%= t('message.area', {lang}) %></p>
+                        <h4><%= report.geofenceArea ?? 'N/A' %> <%= unit.name %></h4>
+                    </div> -->
+                </div>
+                <div class="row paddedx align-start">
+                    <!-- Forest Loss -->
+                    <!-- <div class="labelled">
+                        <p class="muted"><%= t('message.forest_loss', {lang}) %> (<%=unit.abbvr.toUpperCase()%>)</p>
+                        <h4><%= report.deforestationArea ?? 'N/A' %></h4>
+                    </div> -->
+
+                    <!-- Forest Gain -->
+                    <!-- <div class="labelled">
+                        <p class="muted"><%= t('message.forest_gain', {lang}) %>  (<%=unit.abbvr.toUpperCase()%>)</p>
+                        <h4><%= report.treeGainArea ?? 'N/A' %></h4>
+                    </div> -->
+
+                    <!-- Forest Unchanged -->
+                    <!-- <div class="labelled">
+                        <p class="muted"><%= t('message.forest_unchanged', {lang}) %></p>
+                        <h4>N/A</h4>
+                    </div> -->
+
+                    <!-- Blank Space -->
+                    <div class="labelled">
+                        <p class="muted">&nbsp;</p>
+                        <h4>&nbsp;</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="map-container paddedx">
+                <img src="data:image/png;base64, <%= mapBase64Img %>" alt="Red dot" style="width: 100%; height: auto; margin-bottom: 10px;"/>
+                <!-- <article id="map"  class="google-map" style="visibility: hidden; width:100%; height:550px; z-index: 0;"></article> -->
+            </div>
+        </main>
+        <hr class="separator" />
+        <footer class="paddedx">
+            <table class="table text-left">
+                <thead class="bg-warning"  >
+                  <tr>
+                    <th scope="col"><%= t('message.deforestation_probability', {lang}) %></th>
+                    <th scope="col" class="text-right"><%= t('message.geofence_area', {lang}) %></th>
+                    <th scope="col" class="text-right">% <%= t('message.geofence_area', {lang}) %></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% for(const metric of report.metrics) { %>
+                    <tr>
+                      <th >
+                        <div style="display: flex; flex-wrap: nowrap;">
+                            <div class="square" style="margin-right: 8px; background-color: <%= metric.colorCode %>;"></div>
+                            <%= t('message.' + snakeCase(metric.label.replace('/', ' Or ')), {lang}) %>
+                          </div>
+                         </th>
+                      <td class="text-right"><%= parseFloat(metric.area.toFixed(3)) %> <%= unit.abbvr.toUpperCase() %></td>
+                      <td class="text-right"><%= parseFloat(metric.percent.toFixed(2)) %>%</td>
+                    </tr>
+                    <% } %>
+                  <tr class="bg-success">
+                    <th scope="row"><%= t('message.total_geofence_area', {lang}) %></th>
+                    <td class="text-right"><%= parseFloat(report.totalArea.toFixed(3)) %> <%= unit.abbvr.toUpperCase() %></td>
+                    <td class="text-right">100%</td>
+              
+                  </tr>
+                </tbody>
+              </table>
+              
+                <div class="row mb-3">
+                  <div class="col-sm font-weight-bold">
+                    <%= t('message.overall_deforestation_prob', {lang}) %>
+                  </div>
+                </div>
+                  <div class="row">
+                  <div class="col-sm">
+                    <button type="button" class="btn" style="border-radius: 100px; color: <%= (report.originalOverallProb || report.overallProb || '').toLowerCase().includes('zero') ? '#000000' : report.overallProbColorCode %>;">
+                      <%= (typeof (report.originalOverallProb || report.overallProb) === 'string' && (report.originalOverallProb || report.overallProb).trim() !== '') ?
+                      t(`message.${(report.originalOverallProb || report.overallProb).split(/[\/\s]/).join("_").toLowerCase()}`, {lang}) : 'N/A' %>
+                    </button>
+                  </div>
+                </div>
+        </footer>
+    </body>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBxEppGyQ3YatmT9C8RJjXAh9HsVtpKLh4&libraries=places&callback=initMap&v=weekly" async></script>
+</html>

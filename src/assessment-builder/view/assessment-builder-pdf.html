@@ -1,0 +1,358 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dimitra Report</title>
+    <!-- CSS only -->
+    <!-- <link
+      href="http://localhost:3000/css/pdfReport.css"
+      rel="stylesheet"
+      type="text/css"
+    /> -->
+    <style>
+      .pdf-header {
+        font-size: 14px;
+        display: none;
+      }
+      .map-container {
+        margin-top: 25px;
+      }
+      .paddedx {
+        padding: 0 25px;
+      }
+      .pdf-header-title {
+        width: 300px;
+        background-color: rgb(40 116 68);
+        padding: 30px;
+        color: #ffffff;
+        text-transform: uppercase;
+        font-size: 18px;
+        font-weight: bolder;
+        border-radius: 14px 0 0 14px;
+      }
+
+      .pdf-subtitle {
+        padding: 2%;
+        margin-top: 18px;
+        border: 1px solid #0000000d;
+        width: 100%;
+        height: auto;
+        border: 1px;
+      }
+      .pdf-subtitle-2 {
+        padding: 2px 30px;
+        border: 1px solid #0000000d;
+        width: 100%;
+        height: auto;
+        border: 1px;
+      }
+
+      .question-header {
+        padding: 8px 30px;
+        width: 100%;
+        height: auto;
+        background: #f7f7f7;
+      }
+
+      .custom-checkbox {
+        display: flex;
+        align-items: center;
+        margin: 10px 60px 0px 0px;
+        white-space: nowrap; 
+      }
+
+      .small-box {
+        width: 25px; /* Adjust width as needed */
+        height: 25px; /* Adjust height as needed */
+        background-color: #f0f0f0; /* Background color */
+        border: 1px solid #ccc; /* Border */
+        border-radius: 4px;
+        margin-right: 8px;
+      }
+
+      .pdf-header-question {
+        padding: 8px 30px;
+        margin-top: 18px;
+        width: 100%;
+        height: auto;
+        background: #373535;
+        color: white;
+        font-weight: bold;
+      }
+
+      .custom-control-input {
+        width: 1.25em; /* Increase width */
+        height: 1.25em; /* Increase height */
+        font-size: 1.25em; /* Increase font size */
+        padding: 0.25em; /* Adjust padding */
+      }
+
+      .checkbox-flex{
+        display: flex;
+        justify-content: space-between;
+        width: 60%;
+      }
+
+      .pdf-sub-header-title- {
+        font-family: Poppins;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 18px;
+        letter-spacing: 0.009em;
+        text-align: left;
+      }
+
+      .pdf-sub-header-title-value {
+        color: #3e3e3e;
+        font-family: Poppins;
+        font-weight: 600;
+        size: 14px;
+      }
+
+      .table-head {
+        background: #373535;
+        color: #ffffff;
+        display: table-row-group;
+      }
+
+      .deforestation-header {
+        background-color: #ffb443;
+      }
+
+      .high-box {
+        width: 25px;
+        height: 25px;
+        background-color: #f03737;
+        border-radius: 5px;
+      }
+
+      .low-box {
+        width: 25px;
+        height: 25px;
+        background-color: #ffb443;
+        border-radius: 5px;
+      }
+
+      .negligible-box {
+        width: 25px;
+        height: 25px;
+        background-color: #f1f4f7;
+        border-radius: 5px;
+      }
+
+      .overall-deforestation {
+        width: 100%;
+        height: 30%;
+        color: #ffb443;
+        border: 2px solid #ffb443;
+        border-radius: 20px;
+        background-color: rgb(255, 180, 67, 0.1);
+        text-align: center;
+        padding-top: 5px;
+      }
+      html {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+      }
+      .pdf-subtitle .ellipsis {
+        white-space: nowrap; 
+        width: 50px; 
+        overflow: hidden;
+        text-overflow: ellipsis; 
+      }
+      .pdf-subtitle-2 .ellipsis {
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis; 
+      }
+    </style>
+  </head>
+  <body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      />
+    <link href="https://fonts.cdnfonts.com/css/poppins" rel="stylesheet" />
+    <div>
+      <div
+        class="pdf-header"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div class="pdf-header-logo" style="width: 50%">
+          <img src="https://dimitra.io/wp-content/themes/dimitra/assets/imgs/dimitralogo2023.svg" />
+        </div>
+        <div class="pdf-header-title" style="width: 50%"><%= data.title %></div>
+      </div>
+      <div class="pdf-subtitle" style="background-color: #f7f7f7;">
+        <div class="d-flex justify-content-between">
+          <div><strong><%= t('message.dateCreated', { lang }) %></strong></div>
+          <div><strong><%= t('message.question', { lang }) %></strong></div>
+        </div>
+        <hr/>
+        <div class="d-flex justify-content-between">
+          <div> <%= data.subHeader.dateCreated %> </div>
+          <div> <%= data.subHeader.questions %> </div>
+        </div>
+      </div>
+      <div class="pdf-subtitle">
+        <div class="row">
+          <div class="col">
+            <div class="row">
+              <div class="col-3"><strong><%= t('message.farmer_name', { lang }) %>:</strong></div>
+              <div class="col ellipsis">...............................................................................................................................................................................................................................................................................................................</div>
+            </div> 
+          </div>
+          <div class="col-4">
+            <div class="row">
+              <div class="col-2"><strong><%= t('message.phone', { lang }) %>:</strong></div>
+              <div class="col ellipsis">...............................................................................................................................................................................................................................................................................................................</div>
+            </div> 
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-1"><strong><%= t('message.address', { lang }) %>:</strong></div>
+          <div class="col ellipsis">
+            ................................................................................................................................................................................................................................................................................................................
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col ellipsis">
+            ..........................................................................................................................................................................................................................................................................................................................................................................................................
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col-1"><strong><%= t('message.date', { lang }) %>:</strong></div>
+          <div class="col ellipsis">
+            ..........................................................................
+          </div>
+        </div>
+      </div>
+      <div class="pdf-header-question">
+        <div><%= t('message.question', { lang }) %></div>
+      </div>
+      <div class="pdf-subtitle-2">
+        <% 
+          let sn = 1;
+        %>
+        <% if(data.questionType == 'HEADINGS') { %>
+          <% 
+          for(const [mainIndex, headingQuestion] of data.tableData.entries()) {
+          %>
+          <div class="row mt-4">
+            <div class="col question-header"><%= sn +'.'+ '  ' + headingQuestion.title %></div>
+          </div>
+            <% for (const [index, q] of headingQuestion.assessmentQuestions.entries()) { %>
+              <div class="row mt-4">
+                <div class="col question-header"><%= (sn +'.'+(index+1)) + ' ' + q.title %></div>
+              </div>
+              <% if (q.assessmentQuestionType === "CHECK_BOXES" || q.assessmentQuestionType === "RADIO_BUTTON") { %>
+                <div class="d-flex flex-column">
+                <% for (const [index, nestedQ] of q.options.entries()) { %>
+                  <div class="custom-checkbox">
+                    <div class="small-box"></div>
+                    <div><%= nestedQ.label %></div>
+                  </div>
+                  
+                    <% if(nestedQ.nestedQuestions && (nestedQ.nestedQuestions.assessmentQuestionType === "RADIO_BUTTON" || nestedQ.nestedQuestions.assessmentQuestionType === "CHECK_BOXES")) { %>
+                      <% for (const [index, opt] of nestedQ.nestedQuestions.options.entries()) { %>
+                        <div style="padding: 10px; margin: 20px; background-color: #f7f7f7;">
+                          <div class="custom-checkbox">
+                            <div class="small-box"></div>
+                            <div><%= opt.label %></div>
+                          </div>
+                        </div>
+                      <% } %>
+                    <% } else if (nestedQ.nestedQuestions) { %>
+                      <div style="padding: 10px; margin: 20px; background-color: #f7f7f7;">
+                        <div class="row">
+                          <div class="col"><%= nestedQ.nestedQuestions.question %></div>
+                        </div>
+                        <div class="row mt-4">
+                          <div class="col ellipsis">
+                            .........................................................................................................................................................................................................................................................................................................................................................................................................
+                          </div>
+                        </div>
+                      </div>
+                    <% } %>
+                <% } %>
+                </div>
+              <% } else { %>
+                <div class="row mt-4">
+                  <div class="col ellipsis">
+                    ..........................................................................................................................................................................................................................................................................................................................................................................................................
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col ellipsis">
+                    ..........................................................................................................................................................................................................................................................................................................................................................................................................
+                  </div>
+                </div>
+              <% } %>
+            <% } %>
+            <%  sn++;  %>
+         <% }  %>
+        <% } else { %>
+            <% for (const [index, q] of data.tableData.entries()) { %>
+              <div class="row mt-4">
+                <div class="col question-header"><%= sn + '.' + q.title %></div>
+              </div>
+              <% if (q.assessmentQuestionType === "CHECK_BOXES" || q.assessmentQuestionType === "RADIO_BUTTON") { %>
+                <div class="d-flex flex-column">
+                <% for (const [index, nestedQ] of q.options.entries()) { %>
+                  <div class="custom-checkbox">
+                    <div class="small-box"></div>
+                    <div><%= nestedQ.label %></div>
+                  </div>
+                  
+                    <% if(nestedQ.nestedQuestions && (nestedQ.nestedQuestions.assessmentQuestionType === "RADIO_BUTTON" || nestedQ.nestedQuestions.assessmentQuestionType === "CHECK_BOXES")) { %>
+                      <% for (const [index, opt] of nestedQ.nestedQuestions.options.entries()) { %>
+                        <div style="padding: 10px; margin: 20px; background-color: #f7f7f7;">
+                          <div class="custom-checkbox">
+                            <div class="small-box"></div>
+                            <div><%= opt.label %></div>
+                          </div>
+                        </div>
+                      <% } %>
+                    <% } else if (nestedQ.nestedQuestions) { %>
+                      <div style="padding: 10px; margin: 20px; background-color: #f7f7f7;">
+                        <div class="row">
+                          <div class="col"><%= nestedQ.nestedQuestions.question %></div>
+                        </div>
+                        <div class="row mt-4">
+                          <div class="col ellipsis">
+                            .........................................................................................................................................................................................................................................................................................................................................................................................................
+                          </div>
+                        </div>
+                      </div>
+                    <% } %>
+                <% } %>
+                </div>
+              <% } else { %>
+                <div class="row mt-4">
+                  <div class="col ellipsis">
+                    ..........................................................................................................................................................................................................................................................................................................................................................................................................
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col ellipsis">
+                    ..........................................................................................................................................................................................................................................................................................................................................................................................................
+                  </div>
+                </div>
+              <% } %>
+              <%  sn++;  %>
+            <% } %>
+        <% } %>
+      </div>
+    </div>
+  </body>
+</html>
